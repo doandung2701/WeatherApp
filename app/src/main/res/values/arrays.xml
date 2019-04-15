@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="temperatureUnits">
+        <item name="C">Celsius</item>
+        <item name="F">Fahrenheit</item>
+        <item name="K">Kelvin</item>
+    </string-array>
+    <string-array name="temperatureUnitsValues">
+        <item name="C">°C</item>
+        <item name="F">°F</item>
+        <item name="K">K</item>
+    </string-array>
+    <string-array name="lengthUnitsValues">
+    <item name="mm">mm</item>
+    <item name="inch">in</item>
+</string-array>
+    <string-array name="lengthUnits">
+        <item name="mm">Millimeters (mm)</item>
+        <item name="inch">Inches (in)</item>
+    </string-array>
+    <string-array name="speedUnits">
+        <item name="mps">Meters per second (m/s)</item>
+        <item name="kph">Kilometers per hour (kph)</item>
+        <item name="mph">Miles per hour (mph)</item>
+    </string-array>
+    <string-array name="speedUnitsValues">
+        <item name="mps">m/s</item>
+        <item name="kph">kph</item>
+        <item name="mph">mph</item>
+    </string-array>
+    <string-array name="pressureUnits">
+        <item name="hpa">hPa</item>
+        <item name="kpa">kPa</item>
+        <item name="mmhg">mm Hg</item>
+    </string-array>
+    <string-array name="pressureUnitsValues">
+        <item name="hpa">hPa</item>
+        <item name="kpa">kPa</item>
+        <item name="mmhg">mm Hg</item>
+    </string-array>
+</resources>

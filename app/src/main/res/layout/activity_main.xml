@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:id="@+id/viewApp"
+    android:layout_height="match_parent">
+    <android.support.design.widget.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:paddingLeft="10dp"
+        >
+
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_scrollFlags="scroll"
+            app:titleEnabled="false">
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize">
+
+            </android.support.v7.widget.Toolbar>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="?attr/actionBarSize"
+                android:baselineAligned="false"
+                >
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:orientation="vertical"
+                    >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/todayTemp"
+                        android:text="0 °C"
+                        android:textSize="36dp"
+                        android:textColor="@color/whiteTextColor"
+                        />
+                    <TextView
+                        android:id="@+id/todayDes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="No data"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+                    <TextView
+                        android:id="@+id/todayWind"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Wind: 0 m/s"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/todayPress"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pressure: 0 hpa"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/todayHumi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Humidity: 0 %"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/todaySunr"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sunrise: 00:00"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/todaySuns"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sunset: 00:00"
+                        android:textColor="@color/whiteTextColor"
+                        android:textSize="16dp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    >
+                    <ImageView
+                        android:layout_width="150dp"
+                        android:layout_height="130dp"
+                        android:id="@+id/todayIcon"
+                        android:layout_gravity="end"
+                        android:paddingRight="42dp"
+                        android:textAlignment="viewEnd"
+                        />
+
+                    <TextView
+                        android:id="@+id/lastUpdate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="bottom|end"
+                        android:gravity="bottom|end"
+                        android:paddingRight="16dp"
+                        android:textAlignment="viewEnd"
+                        android:textSize="16dp" />
+                </LinearLayout>
+            </LinearLayout>
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+        <android.support.design.widget.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/tabs"
+            app:tabMode="fixed"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="#ffffff"
+            ></android.support.design.widget.TabLayout>
+
+    </android.support.design.widget.AppBarLayout>
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/viewPager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        ></android.support.v4.view.ViewPager>
+</android.support.design.widget.CoordinatorLayout>
