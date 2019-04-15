@@ -2,6 +2,7 @@ package com.hust.buidoandung.weatherapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -16,11 +17,13 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -81,7 +84,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public List<Weather> longTermTomorrowWeather = new ArrayList<>();
     private static Map<String, Integer> speedUnits = new HashMap<>(3);
     private static Map<String, Integer> pressUnits = new HashMap<>(3);
-    public String downloadServerUri="http://openweathermap.org/img/w/%s.png";
+    String[] permissions= new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.INTERNET};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,10 +114,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         pressUnits.put("hPa", R.string.pressure_unit_hpa);
         pressUnits.put("kPa", R.string.pressure_unit_kpa);
         pressUnits.put("mm Hg", R.string.pressure_unit_mmhg);
+
         preloadWeather();
         updateLastUpdateTime();
 
     }
+
+
     public void updateLongTermWeatherUI() {
 
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -150,6 +161,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(locationManager!=null){
+            locationManager.removeUpdates(MainActivity.this);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_search:
@@ -160,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 startActivity(intent);
                 return true;
             case R.id.action_location:
+                getWeatherByUsingLocationService();
                 return true;
             case R.id.action_refresh:
                 getTodayWeather();
@@ -170,6 +190,84 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
+    private void getWeatherByUsingLocationService() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(arePermissionsEnabled()){
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                progressDialog = new ProgressDialog(this);
+                progressDialog.setMessage("Gettting your location...");
+                progressDialog.setCancelable(false);
+                progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        try {
+                            locationManager.removeUpdates(MainActivity.this);
+                        } catch (SecurityException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                progressDialog.show();
+                if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
+                }
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                }
+            }else{
+                requestMultiplePermissions();
+            }
+        }
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void requestMultiplePermissions(){
+        List<String> remainingPermissions = new ArrayList<>();
+        for (String permission : permissions) {
+            if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+                remainingPermissions.add(permission);
+            }
+        }
+        requestPermissions(remainingPermissions.toArray(new String[remainingPermissions.size()]), 101);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private boolean arePermissionsEnabled(){
+        for(String permission : permissions){
+            if(checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
+                return false;
+        }
+        return true;
+    }
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == 101){
+            for(int i=0;i<grantResults.length;i++){
+                if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                    if(shouldShowRequestPermissionRationale(permissions[i])){
+                        new AlertDialog.Builder(this)
+                                .setMessage("You need to allow permission")
+                                .setPositiveButton("Allow", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        MainActivity.this.requestMultiplePermissions();
+                                    }
+                                })
+                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .create()
+                                .show();
+                    }
+                    return;
+                }
+            }
+            getWeatherByUsingLocationService();
+            //all is good, continue flow
+        }
+    }
 
     private void getTodayWeather() {
         new GetTodayWeatherTask(progressDialog,this,this).execute();
@@ -202,7 +300,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         alert.show();
     }
 
-    private void saveLocation(String result) {
+    public void saveLocation(String result) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         recentCity = preferences.getString("city", DefaultValue.DEFAULT_CITY);
 
@@ -239,7 +337,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 PreferenceManager.getDefaultSharedPreferences(this).getLong("lastUpdate", -1)
         );
     }
-    private void getLongTermWeather() {
+    public void getLongTermWeather() {
         new GetLongTermWeatherTask(progressDialog,this, this).execute();
     }
     private void updateLastUpdateTime(long timeInMillis) {
@@ -304,10 +402,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         todaySunrise.setText(getString(R.string.sunrise) + ": " + timeFormat.format(todayWeather.getSunrise()));
         todaySunset.setText(getString(R.string.sunset) + ": " + timeFormat.format(todayWeather.getSunset()));
         Glide
-                .with(this)
+                .with(getApplicationContext())
                 .load("http://openweathermap.org/img/w/"+todayWeather.getIcon()+".png")
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .onlyRetrieveFromCache(true)
                 .centerCrop()
                 .error(R.drawable.baseline_error_outline_24)
                 .fallback(new ColorDrawable(Color.GRAY))
@@ -354,7 +450,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onLocationChanged(Location location) {
-
+        progressDialog.dismiss();
+        try {
+            locationManager.removeUpdates(this);
+        } catch (SecurityException e) {
+            Log.e("LocationManager", "Error while trying to stop listening for location updates. This is probably a permissions issue", e);
+        }
+        double latitude = location.getLatitude();
+        double longitude = location.getLongitude();
+        new GetWeatherByCoor(progressDialog,this,this).execute("coords",Double.toString(latitude),Double.toString(longitude));
     }
 
     @Override

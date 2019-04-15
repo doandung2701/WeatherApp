@@ -69,8 +69,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         Glide
                 .with(this.context)
                 .load("http://openweathermap.org/img/w/"+weatherItem.getIcon()+".png")
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .onlyRetrieveFromCache(true)
                 .placeholder(R.drawable.progress_animation)
                 .error(R.drawable.baseline_error_outline_24)
                 .fallback(new ColorDrawable(Color.GRAY))
