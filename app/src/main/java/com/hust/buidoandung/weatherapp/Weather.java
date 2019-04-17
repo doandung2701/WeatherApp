@@ -15,7 +15,6 @@ public class Weather {
     private String temperature;
     private String description;
     private String wind;
-    private Double windDirectionDegree;
     private String pressure;
     private String humidity;
     private String rain;
@@ -67,9 +66,7 @@ public class Weather {
     }
 
 
-    public void setWindDirectionDegree(Double windDirectionDegree) {
-        this.windDirectionDegree = windDirectionDegree;
-    }
+
 
     public String getPressure() {
         return pressure;

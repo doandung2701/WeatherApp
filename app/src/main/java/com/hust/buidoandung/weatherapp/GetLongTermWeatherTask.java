@@ -2,62 +2,53 @@ package com.hust.buidoandung.weatherapp;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
-public class GetLongTermWeatherTask extends RequestToServer {
-    public GetLongTermWeatherTask(ProgressDialog progressDialog, MainActivity context, MainActivity activity) {
-        super(progressDialog, context, activity);
+public class GetLongTermWeatherTask extends AsyncTask<String,String, List<List<Weather>>> {
+//    forecast
+ProgressDialog progressDialog;
+    Context context;
+    MainActivity mainActivity;
+    public GetLongTermWeatherTask(ProgressDialog progressDialog, Context context, MainActivity activity) {
+        this.progressDialog=progressDialog;
+        this.context=context;
+        this.mainActivity=activity;
     }
 
-    @Override
-    protected ApiResult.ServerResult parseResponse(String response) throws Exception {
-        return parseLongTermJson(response);
-    }
 
-    @Override
-    protected void onPreExecute() {
-        super.onPreExecute();
-    }
-
-    @Override
-    protected String getAPIName() {
-        return "forecast";
-    }
-
-    @Override
-    protected void updateMainUI() {
-        ((MainActivity) context).updateLongTermWeatherUI();
-    }
-
-    private ApiResult.ServerResult parseLongTermJson(String response) throws Exception {
-        MainActivity mainActivity=(MainActivity)this.context;
+    private List<List<Weather>> parseTodayJson(String response) throws Exception {
         int i;
+        List<List<Weather>> data=new ArrayList<List<Weather>>();
+        List<Weather> longTermWeather=new ArrayList<>();
+        List<Weather> longTermTodayWeather=new ArrayList<>();
+        List<Weather> longTermTomorrowWeather=new ArrayList<>();
         try {
             JSONObject reader = new JSONObject(response);
-
             final String code = reader.optString("cod");
             if ("404".equals(code)) {
-                if (mainActivity.longTermWeather == null) {
-                    mainActivity.longTermWeather = new ArrayList<>();
-                    mainActivity.longTermTodayWeather = new ArrayList<>();
-                    mainActivity.longTermTomorrowWeather = new ArrayList<>();
-                }
-                return ApiResult.ServerResult.CITY_NOT_FOUND;
+                return null;
             }
-
-            mainActivity.longTermWeather = new ArrayList<>();
-            mainActivity.longTermTodayWeather = new ArrayList<>();
-            mainActivity.longTermTomorrowWeather = new ArrayList<>();
-
             JSONArray list = reader.getJSONArray("list");
-            Calendar today = Calendar.getInstance();
+            Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             int thisToday=today.get(Calendar.DAY_OF_YEAR);
             for (i = 0; i < list.length(); i++) {
                 Weather weather = new Weather();
@@ -74,7 +65,6 @@ public class GetLongTermWeatherTask extends RequestToServer {
                 JSONObject windObj = listItem.optJSONObject("wind");
                 if (windObj != null) {
                     weather.setWind(windObj.getString("speed"));
-                    weather.setWindDirectionDegree(windObj.getDouble("deg"));
                 }
 
             //rain
@@ -99,11 +89,11 @@ public class GetLongTermWeatherTask extends RequestToServer {
                 Calendar cal=Calendar.getInstance();
                 cal.setTime(weather.getDate());
                 if (cal.get(Calendar.DAY_OF_YEAR) == thisToday) {
-                    mainActivity.longTermTodayWeather.add(weather);
+                    longTermTodayWeather.add(weather);
                 } else if (cal.get(Calendar.DAY_OF_YEAR) == thisToday + 1) {
-                    mainActivity.longTermTomorrowWeather.add(weather);
+                    longTermTomorrowWeather.add(weather);
                 } else {
-                    mainActivity.longTermWeather.add(weather);
+                   longTermWeather.add(weather);
                 }
             }
 
@@ -111,9 +101,75 @@ public class GetLongTermWeatherTask extends RequestToServer {
         } catch (JSONException e) {
             Log.e("JSONException Data", response);
             e.printStackTrace();
-            return ApiResult.ServerResult.JSON_EXCEPTION;
+            return null;
         }
+        data.add(longTermTodayWeather);
+        data.add(longTermTomorrowWeather);
+        data.add(longTermWeather);
+        return data;
+    }
+    @Override
+    protected void onPreExecute() {
+        if(!progressDialog.isShowing()){
+            progressDialog.setMessage("Waiting...");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        }
+    }
 
-        return ApiResult.ServerResult.OK;
+    @Override
+    protected void onPostExecute(final List<List<Weather>> lists) {
+        progressDialog.dismiss();
+        if(lists==null){
+            Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
+        }else{
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.updateLongTermWeatherUI(lists);
+
+                }
+            });
+        }
+    }
+
+    @Override
+    protected List<List<Weather>> doInBackground(String... strings) {
+        List<List<Weather>> data=new ArrayList<List<Weather>>();
+        try {
+            URL url=createURL();
+            String response="";
+            HttpURLConnection connection= (HttpURLConnection) url.openConnection();
+            int responseCode=connection.getResponseCode();
+            if(responseCode==200){
+                InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+                BufferedReader r = new BufferedReader(inputStreamReader);
+                String line=null;
+                while ((line=r.readLine())!=null){
+                    response+=line;
+                }
+                r.close();
+                connection.disconnect();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                Calendar now = Calendar.getInstance();
+                editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
+                data=parseTodayJson(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return  data;
+    }
+    private URL createURL() throws Exception{
+        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);
+        String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
+        StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
+        stringBuilder.append("forecast").append("?");
+        final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
+        stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
+        stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
+        stringBuilder.append("&mode=json");
+        stringBuilder.append("&appid=").append(apiKey);
+        return new URL(stringBuilder.toString());
     }
 }

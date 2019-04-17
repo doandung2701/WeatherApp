@@ -3,139 +3,119 @@ package com.hust.buidoandung.weatherapp;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
-
 import org.json.JSONObject;
-
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Calendar;
+import java.util.Locale;
+public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
+    ProgressDialog progressDialog;
+    Context context;
+    MainActivity mainActivity;
+    public GetTodayWeatherTask(ProgressDialog progressDialog, Context context, MainActivity activity) {
+       this.progressDialog=progressDialog;
+       this.context=context;
+       this.mainActivity=activity;
+    }
 
-import static com.hust.buidoandung.weatherapp.ApiResult.ServerResult.JSON_EXCEPTION;
-import static com.hust.buidoandung.weatherapp.ApiResult.ServerResult.OK;
+    @Override
+    protected Weather doInBackground(String... strings) {
+        Weather weather=new Weather();
+        try {
+            URL url=createURL();
+            String response="";
+            HttpURLConnection connection= (HttpURLConnection) url.openConnection();
+            int responseCode=connection.getResponseCode();
+            if(responseCode==200){
+                InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream());
+                BufferedReader r = new BufferedReader(inputStreamReader);
+                String line=null;
+                while ((line=r.readLine())!=null){
+                    response+=line;
+                }
+                r.close();
+                connection.disconnect();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                Calendar now = Calendar.getInstance();
+                editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
+                weather=parseTodayJson(response);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return weather;
+    }
 
-public class GetTodayWeatherTask extends RequestToServer{
-    public GetTodayWeatherTask(ProgressDialog progressDialog, MainActivity context, MainActivity activity) {
-        super(progressDialog, context, activity);
+    @Override
+    protected void onPostExecute(final Weather weather) {
+        progressDialog.dismiss();
+        if(weather==null){
+            Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
+        }else{
+            mainActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mainActivity.updateTodayWeatherUI(weather);
+                }
+            });
+        }
     }
 
     @Override
     protected void onPreExecute() {
-        super.onPreExecute();
+        if(!progressDialog.isShowing()){
+            progressDialog.setMessage("Waiting...");
+            progressDialog.setCanceledOnTouchOutside(false);
+            progressDialog.show();
+        }
     }
 
-    @Override
-    protected void onPostExecute(ApiResult apiResult) {
-        super.onPostExecute(apiResult);
-    }
 
-    @Override
-    protected ApiResult.ServerResult parseResponse(String response) {
-        return parseTodayJson(response);
-    }
 
-    @Override
-    protected String getAPIName() {
-        return "weather";
-    }
 
-    @Override
-    protected void updateMainUI() {
-        ((MainActivity)context).updateTodayWeatherUI();
-        ((MainActivity)context).updateLastUpdateTime();
-    }
-    private ApiResult.ServerResult parseTodayJson(String response) {
-//        {
-//            "coord": {
-//            "lon": 105.85,
-//                    "lat": 21.03
-//        },
-//            "weather": [
-//            {
-//                "id": 803,
-//                    "main": "Clouds",
-//                    "description": "broken clouds",
-//                    "icon": "04d"
-//            }
-//],
-//            "base": "stations",
-//                "main": {
-//            "temp": 297.15,
-//                    "pressure": 1013,
-//                    "humidity": 100,
-//                    "temp_min": 297.15,
-//                    "temp_max": 297.15
-//        },
-//            "visibility": 10000,
-//                "wind": {
-//            "speed": 4.1,
-//                    "deg": 60
-//        },
-//            "clouds": {
-//            "all": 75
-//        },
-//            "dt": 1555291800,
-//                "sys": {
-//            "type": 1,
-//                    "id": 9308,
-//                    "message": 0.0033,
-//                    "country": "VN",
-//                    "sunrise": 1555281486,
-//                    "sunset": 1555326902
-//        },
-//            "id": 1581130,
-//                "name": "Hanoi",
-//                "cod": 200
-//        }
-        Log.d("MainActivity", "parseTodayJson: "+response);
+    private Weather parseTodayJson(String response) {
+        Weather weather=new Weather();
+
         try {
             JSONObject reader = new JSONObject(response);
             final String code = reader.optString("cod");
             //khong tim thay thanh pho nay
             if(code.equals("404")){
-                return ApiResult.ServerResult.CITY_NOT_FOUND;
+                return null;
             }
             //prase thong tin ve thanh pho
             String city = reader.getString("name");
             String country = "";
             JSONObject countryObj = reader.optJSONObject("sys");
-            MainActivity mainActivity=((MainActivity)context);
             if (countryObj != null) {
                 country = countryObj.getString("country");
-                mainActivity.todayWeather.setSunrise(countryObj.getString("sunrise"));
-                ((MainActivity)context).todayWeather.setSunset(countryObj.getString("sunset"));
+                weather.setSunrise(countryObj.getString("sunrise"));
+                weather.setSunset(countryObj.getString("sunset"));
             }
-            mainActivity.todayWeather.setCity(city);
-            mainActivity.todayWeather.setCountry(country);
-            JSONObject coordinates = reader.getJSONObject("coord");
-            if(coordinates!=null){
-                double lat=coordinates.getDouble("lat");
-                double lon=coordinates.getDouble("lon");
-                SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
-                sp.edit().putFloat("latitude",(float)lat).commit();
-                sp.edit().putFloat("longitude",(float)lon).commit();
-
-            }
+            weather.setCity(city);
+            weather.setCountry(country);
             //lay thong tin ve nhiet do,do am...
             JSONObject main = reader.getJSONObject("main");
 
-            mainActivity.todayWeather.setTemperature(main.getString("temp"));
-            mainActivity.todayWeather.setPressure(main.getString("pressure"));
-            mainActivity.todayWeather.setHumidity(main.getString("humidity"));
+            weather.setTemperature(main.getString("temp"));
+            weather.setPressure(main.getString("pressure"));
+            weather.setHumidity(main.getString("humidity"));
             //mieu ta ve tinh trang thoi tiet
-            mainActivity.todayWeather.setDescription(reader.getJSONArray("weather").getJSONObject(0).getString("description"));
-            mainActivity.todayWeather.setIcon(reader.getJSONArray("weather").getJSONObject(0).getString("icon"));
+            weather.setDescription(reader.getJSONArray("weather").getJSONObject(0).getString("description"));
+            weather.setIcon(reader.getJSONArray("weather").getJSONObject(0).getString("icon"));
 
             String idString = reader.getJSONArray("weather").getJSONObject(0).getString("id");
-            mainActivity.todayWeather.setId(idString);
+            weather.setId(idString);
             //gio va huong cua gio
             JSONObject windObj = reader.getJSONObject("wind");
-            mainActivity.todayWeather.setWind(windObj.getString("speed"));
-            if (windObj.has("deg")) {
-                mainActivity.todayWeather.setWindDirectionDegree(windObj.getDouble("deg"));
-            } else {
-                Log.e("parseTodayJson", "No wind direction available");
-                mainActivity.todayWeather.setWindDirectionDegree(null);
-            }
+            weather.setWind(windObj.getString("speed"));
 
             //xu ly ve gia tri mua
             JSONObject rainObj = reader.optJSONObject("rain");
@@ -150,13 +130,26 @@ public class GetTodayWeatherTask extends RequestToServer{
                     rain = "0";
                 }
             }
-            mainActivity.todayWeather.setRain(rain);
+            weather.setRain(rain);
 
 
         }catch (Exception e){
-            return JSON_EXCEPTION;
+            Log.d("Exception",e.getMessage());
 
         }
-        return OK;
+        return weather;
     }
+    private URL createURL() throws Exception{
+        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);
+        String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
+        StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
+        stringBuilder.append("weather").append("?");
+        final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
+        stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
+        stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
+        stringBuilder.append("&mode=json");
+        stringBuilder.append("&appid=").append(apiKey);
+        return new URL(stringBuilder.toString());
+    }
+
 }

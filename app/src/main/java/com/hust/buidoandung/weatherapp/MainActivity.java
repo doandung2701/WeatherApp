@@ -10,51 +10,35 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
 import android.preference.PreferenceManager;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +47,6 @@ import static android.text.format.DateFormat.getDateFormat;
 import static android.text.format.DateFormat.getTimeFormat;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
-    public static final int REQUEST_LOCATION=1;
     public String recentCity = "";
     Weather todayWeather=new Weather();
     TextView todayTemperature;
@@ -114,15 +97,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         pressUnits.put("hPa", R.string.pressure_unit_hpa);
         pressUnits.put("kPa", R.string.pressure_unit_kpa);
         pressUnits.put("mm Hg", R.string.pressure_unit_mmhg);
-
         preloadWeather();
-        updateLastUpdateTime();
 
     }
 
 
-    public void updateLongTermWeatherUI() {
-
+    public void updateLongTermWeatherUI(List<List<Weather>> data) {
+        this.longTermTodayWeather=data.get(0);
+        this.longTermTomorrowWeather=data.get(1);
+        this.longTermWeather=data.get(2);
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         Bundle bundleToday = new Bundle();
@@ -184,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             case R.id.action_refresh:
                 getTodayWeather();
                 getLongTermWeather();
-
+             return true;
             default:
                  return super.onOptionsItemSelected(item);
         }
@@ -303,14 +286,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void saveLocation(String result) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         recentCity = preferences.getString("city", DefaultValue.DEFAULT_CITY);
-
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("city", result);
-        editor.putBoolean("cityChanged",true);
         editor.commit();
-
         if (!recentCity.equals(result)) {
-            // New location, update weather
             getTodayWeather();
             getLongTermWeather();
         }
@@ -351,64 +330,60 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
 
-    public void updateTodayWeatherUI() {
-        try {
-            if (todayWeather.getCountry().isEmpty()) {
-                preloadWeather();
-                return;
-            }
-        } catch (Exception e) {
-            preloadWeather();
-            return;
-        }
-        DateFormat timeFormat =getTimeFormat(getApplicationContext());
-        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+    public void updateTodayWeatherUI(Weather weather) {
+       if(weather!=null){
+           todayWeather=weather;
+           updateLastUpdateTime();
+           DateFormat timeFormat =getTimeFormat(getApplicationContext());
+           SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
-        String city = todayWeather.getCity();
-        String country = todayWeather.getCountry();
-        //cap nhat actionbar
-        getSupportActionBar().setTitle(city + (country.isEmpty() ? "" : ", " + country));
+           String city = todayWeather.getCity();
+           String country = todayWeather.getCountry();
+           //cap nhat actionbar
+           getSupportActionBar().setTitle(city + (country.isEmpty() ? "" : ", " + country));
 
-        // Temperature
-        float temperature = UnitConvertor.convertTemperature(Float.parseFloat(todayWeather.getTemperature()), sp);
-              temperature = Math.round(temperature * 10) / 10;
+           // Temperature
+           float temperature = UnitConvertor.convertTemperature(Float.parseFloat(todayWeather.getTemperature()), sp);
+           temperature = Math.round(temperature * 10) / 10;
 
-        // Rain
-        double rain = Double.parseDouble(todayWeather.getRain());
-        String rainString = UnitConvertor.getRainString(rain, sp);
+           // Rain
+           double rain = Double.parseDouble(todayWeather.getRain());
+           String rainString = UnitConvertor.getRainString(rain, sp);
 
-        // Wind
-        double wind;
-        try {
-            wind = Double.parseDouble(todayWeather.getWind());
-        } catch (Exception e) {
-            e.printStackTrace();
-            wind = 0;
-        }
-        wind = UnitConvertor.convertWind(wind, sp);
+           // Wind
+           double wind;
+           try {
+               wind = Double.parseDouble(todayWeather.getWind());
+           } catch (Exception e) {
+               e.printStackTrace();
+               wind = 0;
+           }
+           wind = UnitConvertor.convertWind(wind, sp);
 
-        // Ap suat
-        double pressure = UnitConvertor.convertPressure((float) Double.parseDouble(todayWeather.getPressure()), sp);
-        DecimalFormat formatOne=new DecimalFormat("0.#");
-        DecimalFormat windFormat=new DecimalFormat("#.0");
-        todayTemperature.setText(String.format( UnitConvertor.format(temperature,formatOne)+ " " + sp.getString("unit", "°C")));
-        todayDescription.setText(todayWeather.getDescription().substring(0, 1).toUpperCase() +
-                todayWeather.getDescription().substring(1) + rainString);
-        todayWind.setText(getString(R.string.wind) + ": " + UnitConvertor.format((float) wind,windFormat) + " " +
-                    localize(sp, "speedUnit", "m/s"));
-        todayPressure.setText(getString(R.string.pressure) + ": " +UnitConvertor.format((float)pressure,windFormat) + " " +
-                localize(sp, "pressureUnit", "hPa"));
-        todayHumidity.setText(getString(R.string.humidity) + ": " + todayWeather.getHumidity() + " %");
-        todaySunrise.setText(getString(R.string.sunrise) + ": " + timeFormat.format(todayWeather.getSunrise()));
-        todaySunset.setText(getString(R.string.sunset) + ": " + timeFormat.format(todayWeather.getSunset()));
-        Glide
-                .with(getApplicationContext())
-                .load("http://openweathermap.org/img/w/"+todayWeather.getIcon()+".png")
-                .centerCrop()
-                .error(R.drawable.baseline_error_outline_24)
-                .fallback(new ColorDrawable(Color.GRAY))
-                .placeholder(R.drawable.progress_animation)
-                .into(todayIcon);
+           // Ap suat
+           double pressure = UnitConvertor.convertPressure((float) Double.parseDouble(todayWeather.getPressure()), sp);
+           DecimalFormat formatOne=new DecimalFormat("0.#");
+           DecimalFormat windFormat=new DecimalFormat("#.0");
+           todayTemperature.setText(String.format( UnitConvertor.format(temperature,formatOne)+ " " + sp.getString("unit", "°C")));
+           todayDescription.setText(todayWeather.getDescription().substring(0, 1).toUpperCase() +
+                   todayWeather.getDescription().substring(1) + rainString);
+           todayWind.setText(getString(R.string.wind) + ": " + UnitConvertor.format((float) wind,windFormat) + " " +
+                   localize(sp, "speedUnit", "m/s"));
+           todayPressure.setText(getString(R.string.pressure) + ": " +UnitConvertor.format((float)pressure,windFormat) + " " +
+                   localize(sp, "pressureUnit", "hPa"));
+           todayHumidity.setText(getString(R.string.humidity) + ": " + todayWeather.getHumidity() + " %");
+           todaySunrise.setText(getString(R.string.sunrise) + ": " + timeFormat.format(todayWeather.getSunrise()));
+           todaySunset.setText(getString(R.string.sunset) + ": " + timeFormat.format(todayWeather.getSunset()));
+           Glide
+                   .with(getApplicationContext())
+                   .load("http://openweathermap.org/img/w/"+todayWeather.getIcon()+".png")
+                   .centerCrop()
+                   .error(R.drawable.baseline_error_outline_24)
+                   .fallback(new ColorDrawable(Color.GRAY))
+                   .placeholder(R.drawable.progress_animation)
+                   .into(todayIcon);
+       }
+
     }
 
     private String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
@@ -458,7 +433,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
-        new GetWeatherByCoor(progressDialog,this,this).execute("coords",Double.toString(latitude),Double.toString(longitude));
+        new GetCityByCoor(progressDialog,this,this).execute(Double.toString(latitude),Double.toString(longitude));
     }
 
     @Override
