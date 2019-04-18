@@ -57,6 +57,12 @@ public class SettingsActivity extends PreferenceActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void finish() {
         super.finish();
     }

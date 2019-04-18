@@ -46,9 +46,9 @@ import java.util.Map;
 import static android.text.format.DateFormat.getDateFormat;
 import static android.text.format.DateFormat.getTimeFormat;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+public class MainActivity extends AppCompatActivity implements LocationListener{
     public String recentCity = "";
-    Weather todayWeather=new Weather();
+    Weather todayWeather;
     TextView todayTemperature;
     TextView todayDescription;
     TextView todayWind;
@@ -98,8 +98,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         pressUnits.put("kPa", R.string.pressure_unit_kpa);
         pressUnits.put("mm Hg", R.string.pressure_unit_mmhg);
         preloadWeather();
+        if(!arePermissionsEnabled()){
+            requestMultiplePermissions();
 
+        }
     }
+
 
 
     public void updateLongTermWeatherUI(List<List<Weather>> data) {
@@ -254,6 +258,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     private void getTodayWeather() {
         new GetTodayWeatherTask(progressDialog,this,this).execute();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        preloadWeather();
     }
 
     @SuppressLint("RestrictedApi")

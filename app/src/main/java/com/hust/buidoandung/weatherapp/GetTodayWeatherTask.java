@@ -62,6 +62,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    mainActivity.saveLocation(weather.getCity()+", "+weather.getCountry());
                     mainActivity.updateTodayWeatherUI(weather);
                 }
             });
