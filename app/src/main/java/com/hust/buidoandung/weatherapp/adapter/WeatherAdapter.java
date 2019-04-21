@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -11,7 +11,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.hust.buidoandung.weatherapp.MainActivity;
+import com.hust.buidoandung.weatherapp.R;
+import com.hust.buidoandung.weatherapp.model.Weather;
+import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;

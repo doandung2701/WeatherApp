@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.utils;
 
 import android.content.SharedPreferences;
 

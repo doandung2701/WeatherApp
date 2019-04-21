@@ -10,14 +10,14 @@
         <item name="F">°F</item>
         <item name="K">K</item>
     </string-array>
-    <string-array name="lengthUnitsValues">
-    <item name="mm">mm</item>
-    <item name="inch">in</item>
-</string-array>
-    <string-array name="lengthUnits">
-        <item name="mm">Millimeters (mm)</item>
-        <item name="inch">Inches (in)</item>
-    </string-array>
+    <!--<string-array name="lengthUnitsValues">-->
+    <!--<item name="mm">mm</item>-->
+    <!--<item name="inch">in</item>-->
+<!--</string-array>-->
+    <!--<string-array name="lengthUnits">-->
+        <!--<item name="mm">Millimeters (mm)</item>-->
+        <!--<item name="inch">Inches (in)</item>-->
+    <!--</string-array>-->
     <string-array name="speedUnits">
         <item name="mps">Meters per second (m/s)</item>
         <item name="kph">Kilometers per hour (kph)</item>

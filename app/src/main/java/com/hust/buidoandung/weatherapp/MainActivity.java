@@ -17,6 +17,7 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -32,6 +33,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.hust.buidoandung.weatherapp.adapter.ViewPagerAdapter;
+import com.hust.buidoandung.weatherapp.adapter.WeatherAdapter;
+import com.hust.buidoandung.weatherapp.adapter.WeatherFragment;
+import com.hust.buidoandung.weatherapp.model.Weather;
+import com.hust.buidoandung.weatherapp.receiver.ConnectivityReceiver;
+import com.hust.buidoandung.weatherapp.tasks.GetCityByCoor;
+import com.hust.buidoandung.weatherapp.tasks.GetLongTermWeatherTask;
+import com.hust.buidoandung.weatherapp.tasks.GetTodayWeatherTask;
+import com.hust.buidoandung.weatherapp.utils.DefaultValue;
+import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
 
 import org.json.JSONObject;
 
@@ -46,7 +57,8 @@ import java.util.Map;
 import static android.text.format.DateFormat.getDateFormat;
 import static android.text.format.DateFormat.getTimeFormat;
 
-public class MainActivity extends AppCompatActivity implements LocationListener{
+public class MainActivity extends AppCompatActivity implements LocationListener, ConnectivityReceiver.ConnectivityReceiverListener{
+    private static int SETTINGCODE=1;
     public String recentCity = "";
     Weather todayWeather;
     TextView todayTemperature;
@@ -73,6 +85,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_NETWORK_STATE,
             Manifest.permission.INTERNET};
+    @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -107,39 +120,45 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
 
     public void updateLongTermWeatherUI(List<List<Weather>> data) {
-        this.longTermTodayWeather=data.get(0);
-        this.longTermTomorrowWeather=data.get(1);
-        this.longTermWeather=data.get(2);
-        ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+        if(data!=null){
+            this.longTermTodayWeather=data.get(0);
+            this.longTermTomorrowWeather=data.get(1);
+            this.longTermWeather=data.get(2);
+            if(longTermTodayWeather!=null&&longTermTomorrowWeather!=null&&longTermWeather!=null){
+                ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        Bundle bundleToday = new Bundle();
-        bundleToday.putInt("day", 0);
-        WeatherFragment recyclerViewFragmentToday = new WeatherFragment();
-        recyclerViewFragmentToday.setArguments(bundleToday);
-        viewPagerAdapter.addFragment(recyclerViewFragmentToday, "Today");
+                Bundle bundleToday = new Bundle();
+                bundleToday.putInt("day", 0);
+                WeatherFragment recyclerViewFragmentToday = new WeatherFragment();
+                recyclerViewFragmentToday.setArguments(bundleToday);
+                viewPagerAdapter.addFragment(recyclerViewFragmentToday, "Today");
 
-        Bundle bundleTomorrow = new Bundle();
-        bundleTomorrow.putInt("day", 1);
-        WeatherFragment recyclerViewFragmentTomorrow = new WeatherFragment();
-        recyclerViewFragmentTomorrow.setArguments(bundleTomorrow);
-        viewPagerAdapter.addFragment(recyclerViewFragmentTomorrow, "Tomorrow");
+                Bundle bundleTomorrow = new Bundle();
+                bundleTomorrow.putInt("day", 1);
+                WeatherFragment recyclerViewFragmentTomorrow = new WeatherFragment();
+                recyclerViewFragmentTomorrow.setArguments(bundleTomorrow);
+                viewPagerAdapter.addFragment(recyclerViewFragmentTomorrow, "Tomorrow");
 
-        Bundle bundle = new Bundle();
-        bundle.putInt("day", 2);
-        WeatherFragment recyclerViewFragment = new WeatherFragment();
-        recyclerViewFragment.setArguments(bundle);
-        viewPagerAdapter.addFragment(recyclerViewFragment,"Later");
+                Bundle bundle = new Bundle();
+                bundle.putInt("day", 2);
+                WeatherFragment recyclerViewFragment = new WeatherFragment();
+                recyclerViewFragment.setArguments(bundle);
+                viewPagerAdapter.addFragment(recyclerViewFragment,"Later");
 
-        int currentPage = viewPager.getCurrentItem();
+                int currentPage = viewPager.getCurrentItem();
 
-        viewPagerAdapter.notifyDataSetChanged();
-        viewPager.setAdapter(viewPagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
+                viewPagerAdapter.notifyDataSetChanged();
+                viewPager.setAdapter(viewPagerAdapter);
+                tabLayout.setupWithViewPager(viewPager);
 
-        if (currentPage == 0 && longTermTodayWeather.isEmpty()) {
-            currentPage = 1;
+                if (currentPage == 0 && longTermTodayWeather.isEmpty()) {
+                    currentPage = 1;
+                }
+                viewPager.setCurrentItem(currentPage, false);
+            }
+
         }
-        viewPager.setCurrentItem(currentPage, false);
+
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -163,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 return true;
             case R.id.action_settings:
                 Intent intent=new Intent(MainActivity.this,SettingsActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,SETTINGCODE);
                 return true;
             case R.id.action_location:
                 getWeatherByUsingLocationService();
@@ -177,6 +196,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+                updateTodayWeatherUI(todayWeather);
+        List<List<Weather>> dataWeather=new ArrayList<List<Weather>>();
+        dataWeather.add(longTermTodayWeather);
+        dataWeather.add(longTermTomorrowWeather);
+        dataWeather.add(longTermWeather);
+        updateLongTermWeatherUI(dataWeather);
+
+    }
+
+    @SuppressLint("MissingPermission")
     private void getWeatherByUsingLocationService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if(arePermissionsEnabled()){
@@ -263,7 +295,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     protected void onResume() {
         super.onResume();
-        preloadWeather();
+        MyApplication.getInstance().setConnectivityListener(this);
+        //preloadWeather();
     }
 
     @SuppressLint("RestrictedApi")
@@ -290,7 +323,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
             }
         });
-        alert.show();
+        AlertDialog dialog = alert.create();
+        dialog.getWindow().getAttributes().windowAnimations = R.style.DialogSearchStyle;
+        dialog.show();
+
     }
 
     public void saveLocation(String result) {
@@ -393,7 +429,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                    .placeholder(R.drawable.progress_animation)
                    .into(todayIcon);
        }
-
     }
 
     private String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
@@ -439,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         try {
             locationManager.removeUpdates(this);
         } catch (SecurityException e) {
-            Log.e("LocationManager", "Error while trying to stop listening for location updates. This is probably a permissions issue", e);
+            Log.e("LocationManager", "permissions issue", e);
         }
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
@@ -459,5 +494,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     public void onProviderDisabled(String provider) {
 
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+            if(isConnected){
+                preloadWeather();
+            }
     }
 }

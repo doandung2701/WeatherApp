@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +7,10 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+
+import com.hust.buidoandung.weatherapp.utils.DefaultValue;
+import com.hust.buidoandung.weatherapp.MainActivity;
+import com.hust.buidoandung.weatherapp.model.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -37,16 +41,16 @@ ProgressDialog progressDialog;
 
     private List<List<Weather>> parseTodayJson(String response) throws Exception {
         int i;
-        List<List<Weather>> data=new ArrayList<List<Weather>>();
-        List<Weather> longTermWeather=new ArrayList<>();
-        List<Weather> longTermTodayWeather=new ArrayList<>();
-        List<Weather> longTermTomorrowWeather=new ArrayList<>();
         try {
             JSONObject reader = new JSONObject(response);
             final String code = reader.optString("cod");
             if ("404".equals(code)) {
                 return null;
             }
+            List<List<Weather>> data=new ArrayList<List<Weather>>();
+            List<Weather> longTermWeather=new ArrayList<>();
+            List<Weather> longTermTodayWeather=new ArrayList<>();
+            List<Weather> longTermTomorrowWeather=new ArrayList<>();
             JSONArray list = reader.getJSONArray("list");
             Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             int thisToday=today.get(Calendar.DAY_OF_YEAR);
@@ -96,17 +100,16 @@ ProgressDialog progressDialog;
                    longTermWeather.add(weather);
                 }
             }
-
-
+            data.add(longTermTodayWeather);
+            data.add(longTermTomorrowWeather);
+            data.add(longTermWeather);
+            return data;
         } catch (JSONException e) {
             Log.e("JSONException Data", response);
             e.printStackTrace();
             return null;
         }
-        data.add(longTermTodayWeather);
-        data.add(longTermTomorrowWeather);
-        data.add(longTermWeather);
-        return data;
+
     }
     @Override
     protected void onPreExecute() {
@@ -135,8 +138,9 @@ ProgressDialog progressDialog;
 
     @Override
     protected List<List<Weather>> doInBackground(String... strings) {
-        List<List<Weather>> data=new ArrayList<List<Weather>>();
         try {
+            List<List<Weather>> data;
+
             URL url=createURL();
             String response="";
             HttpURLConnection connection= (HttpURLConnection) url.openConnection();
@@ -154,11 +158,14 @@ ProgressDialog progressDialog;
                 Calendar now = Calendar.getInstance();
                 editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
                 data=parseTodayJson(response);
+                return data;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return  null;
+
         }
-        return  data;
+        return  null;
     }
     private URL createURL() throws Exception{
         SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);

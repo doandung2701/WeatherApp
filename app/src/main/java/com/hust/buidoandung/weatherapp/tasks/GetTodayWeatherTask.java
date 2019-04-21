@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +7,11 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+
+import com.hust.buidoandung.weatherapp.utils.DefaultValue;
+import com.hust.buidoandung.weatherapp.MainActivity;
+import com.hust.buidoandung.weatherapp.model.Weather;
+
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,7 +20,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Locale;
-public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
+public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
     ProgressDialog progressDialog;
     Context context;
     MainActivity mainActivity;
@@ -27,8 +32,8 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
 
     @Override
     protected Weather doInBackground(String... strings) {
-        Weather weather=new Weather();
         try {
+            Weather weather;
             URL url=createURL();
             String response="";
             HttpURLConnection connection= (HttpURLConnection) url.openConnection();
@@ -46,11 +51,14 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
                 Calendar now = Calendar.getInstance();
                 editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
                 weather=parseTodayJson(response);
+                return weather;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return null;
+
         }
-        return weather;
+        return null;
     }
 
     @Override
@@ -58,6 +66,11 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
         progressDialog.dismiss();
         if(weather==null){
             Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("city", DefaultValue.DEFAULT_CITY);
+            editor.commit();
+            return ;
         }else{
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
@@ -82,8 +95,6 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
 
 
     private Weather parseTodayJson(String response) {
-        Weather weather=new Weather();
-
         try {
             JSONObject reader = new JSONObject(response);
             final String code = reader.optString("cod");
@@ -91,6 +102,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
             if(code.equals("404")){
                 return null;
             }
+            Weather weather=new Weather();
             //prase thong tin ve thanh pho
             String city = reader.getString("name");
             String country = "";
@@ -132,13 +144,11 @@ public class GetTodayWeatherTask extends AsyncTask<String,String,Weather> {
                 }
             }
             weather.setRain(rain);
-
-
+            return weather;
         }catch (Exception e){
             Log.d("Exception",e.getMessage());
-
+            return null;
         }
-        return weather;
     }
     private URL createURL() throws Exception{
         SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);

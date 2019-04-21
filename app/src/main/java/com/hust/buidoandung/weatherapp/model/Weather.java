@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.model;
 
 import android.content.Context;
 

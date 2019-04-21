@@ -10,9 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
-public class SettingsActivity extends PreferenceActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener{
+import java.util.Observable;
+import java.util.Observer;
 
+public class SettingsActivity extends PreferenceActivity
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,10 +35,8 @@ public class SettingsActivity extends PreferenceActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case "unit":
-            case "lengthUnit":
             case "speedUnit":
             case "pressureUnit":
-            case "windDirectionFormat":
                 setListPreferenceSummary(key);
                 break;
         }
@@ -47,7 +47,6 @@ public class SettingsActivity extends PreferenceActivity
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         setListPreferenceSummary("unit");
-        setListPreferenceSummary("lengthUnit");
         setListPreferenceSummary("speedUnit");
         setListPreferenceSummary("pressureUnit");
     }
@@ -66,4 +65,5 @@ public class SettingsActivity extends PreferenceActivity
     public void finish() {
         super.finish();
     }
+
 }

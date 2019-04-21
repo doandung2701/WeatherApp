@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="whiteTextColor">#ffffff</color>
     <color name="colorSplashScreen">#AED5EB</color>
+    <color name="toolbarTransparent">#00FFFFFF</color>
 </resources>

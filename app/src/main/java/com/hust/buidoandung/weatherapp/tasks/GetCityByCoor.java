@@ -1,4 +1,4 @@
-package com.hust.buidoandung.weatherapp;
+package com.hust.buidoandung.weatherapp.tasks;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,6 +7,9 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.util.Log;
+
+import com.hust.buidoandung.weatherapp.MainActivity;
+
 import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
