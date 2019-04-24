@@ -11,6 +11,7 @@ import android.util.Log;
 import com.hust.buidoandung.weatherapp.utils.DefaultValue;
 import com.hust.buidoandung.weatherapp.MainActivity;
 import com.hust.buidoandung.weatherapp.model.Weather;
+import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
 
 import org.json.JSONObject;
 import java.io.BufferedReader;
@@ -20,6 +21,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
+
 public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
     ProgressDialog progressDialog;
     Context context;
@@ -122,9 +125,10 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             weather.setHumidity(main.getString("humidity"));
             //mieu ta ve tinh trang thoi tiet
             weather.setDescription(reader.getJSONArray("weather").getJSONObject(0).getString("description"));
-            weather.setIcon(reader.getJSONArray("weather").getJSONObject(0).getString("icon"));
-
+            Calendar today = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
             String idString = reader.getJSONArray("weather").getJSONObject(0).getString("id");
+            weather.setIcon(UnitConvertor.setWeatherIcon(Integer.parseInt(idString),today.get(Calendar.HOUR_OF_DAY)));
+
             weather.setId(idString);
             //gio va huong cua gio
             JSONObject windObj = reader.getJSONObject("wind");
@@ -144,6 +148,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
                 }
             }
             weather.setRain(rain);
+
             return weather;
         }catch (Exception e){
             Log.d("Exception",e.getMessage());

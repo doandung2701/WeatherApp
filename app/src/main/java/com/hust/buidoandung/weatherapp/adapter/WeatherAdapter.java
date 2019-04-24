@@ -2,6 +2,7 @@ package com.hust.buidoandung.weatherapp.adapter;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.RecyclerView;
@@ -70,13 +71,9 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");
 
         viewHolder.itemDate.setText(sdfTime.format(weatherItem.getDate()));
-        Glide
-                .with(this.context)
-                .load("http://openweathermap.org/img/w/"+weatherItem.getIcon()+".png")
-                .placeholder(R.drawable.progress_animation)
-                .error(R.drawable.baseline_error_outline_24)
-                .fallback(new ColorDrawable(Color.GRAY))
-                .into(viewHolder.itemIcon);
+        Typeface weatherFont = Typeface.createFromAsset(context.getAssets(), "fonts/weather.ttf");
+        viewHolder.itemIcon.setTypeface(weatherFont);
+        viewHolder.itemIcon.setText(weatherItem.getIcon());
 
     }
 
@@ -95,7 +92,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         public TextView itemyWind;
         public TextView itemPressure;
         public TextView itemHumidity;
-        public ImageView itemIcon;
+        public TextView itemIcon;
         public View lineView;
         public WeatherHolder(View view) {
             super(view);

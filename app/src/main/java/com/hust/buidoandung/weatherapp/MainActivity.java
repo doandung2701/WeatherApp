@@ -9,7 +9,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -24,10 +27,12 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.graphics.Palette;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -49,6 +54,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -69,9 +75,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     TextView todaySunrise;
     TextView todaySunset;
     TextView lastUpdate;
-    ImageView todayIcon;
+    TextView todayIcon;
     ViewPager viewPager;
     TabLayout tabLayout;
+    Typeface weatherFont;
     LocationManager locationManager;
     ProgressDialog progressDialog;
     public List<Weather> longTermWeather = new ArrayList<>();
@@ -90,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //setStatusBarTrans(true);
         todayTemperature =  findViewById(R.id.todayTemp);
         todayDescription =  findViewById(R.id.todayDes);
         todayWind =  findViewById(R.id.todayWind);
@@ -101,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         todayIcon =  findViewById(R.id.todayIcon);
         viewPager=findViewById(R.id.viewPager);
         tabLayout=findViewById(R.id.tabs);
+        weatherFont = Typeface.createFromAsset(this.getAssets(), "fonts/weather.ttf");
+        todayIcon.setTypeface(weatherFont);
+
         progressDialog = new ProgressDialog(MainActivity.this);
         speedUnits.put("m/s", R.string.speed_unit_mps);
         speedUnits.put("kph", R.string.speed_unit_kph);
@@ -115,10 +126,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             requestMultiplePermissions();
 
         }
+        setStatusBarTrans(true);
     }
 
 
-
+    protected void setStatusBarTrans(boolean makeTrans) {
+        if (makeTrans) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        } else {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        }
+    }
     public void updateLongTermWeatherUI(List<List<Weather>> data) {
         if(data!=null){
             this.longTermTodayWeather=data.get(0);
@@ -191,6 +209,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 getTodayWeather();
                 getLongTermWeather();
              return true;
+            case R.id.action_map:
+                Intent intent1=new Intent(MainActivity.this,MapsActivity.class);
+                startActivity(intent1);
+                return true;
             default:
                  return super.onOptionsItemSelected(item);
         }
@@ -420,14 +442,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
            todayHumidity.setText(getString(R.string.humidity) + ": " + todayWeather.getHumidity() + " %");
            todaySunrise.setText(getString(R.string.sunrise) + ": " + timeFormat.format(todayWeather.getSunrise()));
            todaySunset.setText(getString(R.string.sunset) + ": " + timeFormat.format(todayWeather.getSunset()));
-           Glide
-                   .with(getApplicationContext())
-                   .load("http://openweathermap.org/img/w/"+todayWeather.getIcon()+".png")
-                   .centerCrop()
-                   .error(R.drawable.baseline_error_outline_24)
-                   .fallback(new ColorDrawable(Color.GRAY))
-                   .placeholder(R.drawable.progress_animation)
-                   .into(todayIcon);
+           todayIcon.setText(todayWeather.getIcon());
        }
     }
 

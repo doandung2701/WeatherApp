@@ -11,6 +11,7 @@ import android.util.Log;
 import com.hust.buidoandung.weatherapp.utils.DefaultValue;
 import com.hust.buidoandung.weatherapp.MainActivity;
 import com.hust.buidoandung.weatherapp.model.Weather;
+import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -87,8 +88,7 @@ ProgressDialog progressDialog;
                 weather.setRain(rain);
 
                 final String idString = listItem.optJSONArray("weather").getJSONObject(0).getString("id");
-                weather.setIcon(listItem.optJSONArray("weather").getJSONObject(0).getString("icon"));
-
+                weather.setIcon(UnitConvertor.setWeatherIcon(Integer.parseInt(idString),today.get(Calendar.HOUR_OF_DAY)));
                 weather.setId(idString);
                 Calendar cal=Calendar.getInstance();
                 cal.setTime(weather.getDate());

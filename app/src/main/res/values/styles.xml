@@ -5,9 +5,6 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@android:color/transparent</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowContentOverlay">@null</item>
-
-        <item name="windowActionBarOverlay">true</item>
         <item name="android:windowAnimationStyle">@style/AnimationTransitionActivity</item>
     </style>
     <style name="AnimationTransitionActivity" parent="@android:style/Animation.Activity">
