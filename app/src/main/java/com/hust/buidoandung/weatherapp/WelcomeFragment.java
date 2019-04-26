@@ -56,8 +56,8 @@ public class WelcomeFragment extends Fragment {
                                 "robust OpenWeatherMap API!");
                 break;
             case 3:
-                populateForm(R.drawable.moon, "Three day forecast",
-                        "Don't be afraid to go on a long trip! We provide 3-day forecast feature!");
+                populateForm(R.drawable.moon, "More day forecast",
+                        "Don't be afraid to go on a long trip! We provide more than 3 days forecast feature!");
                 break;
             case 4:
                 populateForm(R.drawable.rain, "Detect weather",

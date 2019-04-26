@@ -53,4 +53,8 @@
     <string name="pressure_unit_mmhg">mm Hg</string>
     <string name="last_update">Last update:\n%s</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="title_rain">Rain</string>
+    <string name="title_wind">Wind</string>
+    <string name="title_temp">Temperature</string>
 </resources>

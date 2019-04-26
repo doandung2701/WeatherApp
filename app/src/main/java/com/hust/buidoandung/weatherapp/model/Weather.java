@@ -22,6 +22,24 @@ public class Weather {
     private String icon;
     private Date sunrise;
     private Date sunset;
+    private float lat;
+    private float log;
+
+    public float getLat() {
+        return lat;
+    }
+
+    public void setLat(float lat) {
+        this.lat = lat;
+    }
+
+    public float getLog() {
+        return log;
+    }
+
+    public void setLog(float log) {
+        this.log = log;
+    }
 
     public String getCity() {
         return city;

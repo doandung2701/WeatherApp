@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/rain"
+        android:icon="@drawable/ic_weather_rainy_grey600_24dp"
+        android:title="@string/title_rain" />
+
+    <item
+        android:id="@+id/wind"
+        android:icon="@drawable/ic_weather_windy_grey600_24dp"
+        android:title="@string/title_wind" />
+
+    <item
+        android:id="@+id/temp"
+        android:icon="@drawable/ic_oil_temperature_grey600_24dp"
+        android:title="@string/title_temp" />
+
+</menu>

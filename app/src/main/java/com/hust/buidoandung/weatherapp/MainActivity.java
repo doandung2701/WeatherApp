@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 getLongTermWeather();
              return true;
             case R.id.action_map:
-                Intent intent1=new Intent(MainActivity.this,MapsActivity.class);
+                Intent intent1=new Intent(MainActivity.this,MapActivity.class);
                 startActivity(intent1);
                 return true;
             default:
@@ -493,6 +493,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         }
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putFloat("lat", (float) latitude);
+        editor.putFloat("long", (float) longitude);
+        editor.commit();
         new GetCityByCoor(progressDialog,this,this).execute(Double.toString(latitude),Double.toString(longitude));
     }
 

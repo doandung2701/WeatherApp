@@ -75,6 +75,11 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             editor.commit();
             return ;
         }else{
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putFloat("lat", weather.getLat());
+            editor.putFloat("long", weather.getLog());
+            editor.commit();
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -108,6 +113,9 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             Weather weather=new Weather();
             //prase thong tin ve thanh pho
             String city = reader.getString("name");
+            JSONObject coord=reader.optJSONObject("coord");
+            weather.setLat((float) coord.getDouble("lat"));
+            weather.setLog((float)coord.getDouble("lon"));
             String country = "";
             JSONObject countryObj = reader.optJSONObject("sys");
             if (countryObj != null) {
