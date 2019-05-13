@@ -141,6 +141,13 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             //gio va huong cua gio
             JSONObject windObj = reader.getJSONObject("wind");
             weather.setWind(windObj.getString("speed"));
+            //xu ly huong gio
+            if (windObj.has("deg")) {
+                weather.setWindDirectionDegree(windObj.getDouble("deg"));
+            } else {
+                Log.e("parseTodayJson", "No wind direction available");
+                weather.setWindDirectionDegree(null);
+            }
 
             //xu ly ve gia tri mua
             JSONObject rainObj = reader.optJSONObject("rain");

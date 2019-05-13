@@ -70,6 +70,8 @@ ProgressDialog progressDialog;
                 JSONObject windObj = listItem.optJSONObject("wind");
                 if (windObj != null) {
                     weather.setWind(windObj.getString("speed"));
+                    weather.setWindDirectionDegree(windObj.getDouble("deg"));
+
                 }
 
             //rain

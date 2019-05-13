@@ -2,6 +2,8 @@ package com.hust.buidoandung.weatherapp.model;
 
 import android.content.Context;
 
+import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -24,6 +26,23 @@ public class Weather {
     private Date sunset;
     private float lat;
     private float log;
+    private Double windDirectionDegree;
+
+    public UnitConvertor.WindDirection getWindDirection() {
+        return UnitConvertor.WindDirection.byDegree(windDirectionDegree);
+    }
+
+    public UnitConvertor.WindDirection getWindDirection(int numberOfDirections) {
+        return UnitConvertor.WindDirection.byDegree(windDirectionDegree, numberOfDirections);
+    }
+
+    public Double getWindDirectionDegree() {
+        return windDirectionDegree;
+    }
+
+    public void setWindDirectionDegree(Double windDirectionDegree) {
+        this.windDirectionDegree = windDirectionDegree;
+    }
 
     public float getLat() {
         return lat;

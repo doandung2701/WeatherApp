@@ -37,6 +37,7 @@ public class SettingsActivity extends PreferenceActivity
             case "unit":
             case "speedUnit":
             case "pressureUnit":
+            case  "windDirectionFormat":
                 setListPreferenceSummary(key);
                 break;
         }
@@ -49,6 +50,8 @@ public class SettingsActivity extends PreferenceActivity
         setListPreferenceSummary("unit");
         setListPreferenceSummary("speedUnit");
         setListPreferenceSummary("pressureUnit");
+        setListPreferenceSummary("windDirectionFormat");
+
     }
     private void setListPreferenceSummary(String preferenceKey) {
         ListPreference preference = (ListPreference) findPreference(preferenceKey);

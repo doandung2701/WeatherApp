@@ -26,5 +26,12 @@
             android:entryValues="@array/pressureUnitsValues"
             android:key="pressureUnit"
             android:title="Pressure units" />
+        <ListPreference
+            android:defaultValue="arrow"
+            android:entries="@array/windDirectionFormats"
+            android:entryValues="@array/windDirectionFormatValues"
+            android:key="windDirectionFormat"
+            android:title="Wind direction format" />
+
     </PreferenceCategory>
 </PreferenceScreen>

@@ -436,7 +436,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
            todayDescription.setText(todayWeather.getDescription().substring(0, 1).toUpperCase() +
                    todayWeather.getDescription().substring(1) + rainString);
            todayWind.setText(getString(R.string.wind) + ": " + UnitConvertor.format((float) wind,windFormat) + " " +
-                   localize(sp, "speedUnit", "m/s"));
+                   localize(sp, "speedUnit", "m/s")+
+                   (todayWeather.getWindDirectionDegree()!=null?" "+getWindDirectionString(sp,this,todayWeather):""));
            todayPressure.setText(getString(R.string.pressure) + ": " +UnitConvertor.format((float)pressure,windFormat) + " " +
                    localize(sp, "pressureUnit", "hPa"));
            todayHumidity.setText(getString(R.string.humidity) + ": " + todayWeather.getHumidity() + " %");
@@ -446,6 +447,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
        }
     }
 
+    public static String getWindDirectionString(SharedPreferences sp, Context context, Weather weather) {
+        try {
+            if (Double.parseDouble(weather.getWind()) != 0) {
+                String pref = sp.getString("windDirectionFormat", null);
+                if ("arrow".equals(pref)) {
+                    return weather.getWindDirection(8).getArrow(context);
+                } else if ("abbr".equals(pref)) {
+                    return weather.getWindDirection().getLocalizedString(context);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "";
+    }
     private String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
         return localize(sp, this, preferenceKey, defaultValueKey);
     }
