@@ -27,15 +27,6 @@ public class Weather {
     private float lat;
     private float log;
     private Double windDirectionDegree;
-
-    public UnitConvertor.WindDirection getWindDirection() {
-        return UnitConvertor.WindDirection.byDegree(windDirectionDegree);
-    }
-
-    public UnitConvertor.WindDirection getWindDirection(int numberOfDirections) {
-        return UnitConvertor.WindDirection.byDegree(windDirectionDegree, numberOfDirections);
-    }
-
     public Double getWindDirectionDegree() {
         return windDirectionDegree;
     }

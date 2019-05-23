@@ -9,9 +9,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -39,10 +41,10 @@
             android:value="@string/google_maps_key" />
 
         <activity android:name=".WelcomeActivity"
-            android:theme="@style/AppTheme.NoActionBarWelcome"/>
+            />
         <activity android:name=".SettingsActivity" />
         <activity android:name=".IntroActivity"
-            android:theme="@style/AppTheme.NoActionBarWelcome">
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -56,6 +58,7 @@
             android:enabled="true">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
             </intent-filter>
         </receiver>
     </application>

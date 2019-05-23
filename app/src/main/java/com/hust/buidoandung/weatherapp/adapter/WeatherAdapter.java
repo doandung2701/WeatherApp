@@ -28,13 +28,14 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         this.itemList = itemList;
         this.context = context;
     }
+    //su dung view holder nham tang hieu nang
     @Override
     public WeatherHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_data, null);
         WeatherHolder viewHolder = new WeatherHolder(view);
         return viewHolder;
     }
-
+    //xu ly viec truyen data vao view holder
     @Override
     public void onBindViewHolder( WeatherHolder viewHolder, int i) {
         Weather weatherItem = itemList.get(i);
@@ -58,13 +59,13 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         double pressure = UnitConvertor.convertPressure((float) Double.parseDouble(weatherItem.getPressure()), sp);
         DecimalFormat formatOne=new DecimalFormat("0.#");
         DecimalFormat windFormat=new DecimalFormat("#.0");
-
+        //thiet lap data cho view
         viewHolder.itemTemperature.setText(UnitConvertor.format(temperature,formatOne)+ " " + sp.getString("unit", "°C"));
         viewHolder.itemDescription.setText(weatherItem.getDescription().substring(0, 1).toUpperCase() +
                 weatherItem.getDescription().substring(1) + rainString);
         viewHolder.itemyWind.setText(context.getString(R.string.wind) + ": " +  UnitConvertor.format((float) wind,windFormat) + " " +
                     MainActivity.localize(sp, context, "speedUnit", "m/s")
-                + " " + MainActivity.getWindDirectionString(sp, context, weatherItem));
+                + " " + getWindDirectionString(sp, context, weatherItem,viewHolder.winddirection));
 
         viewHolder.itemPressure.setText(context.getString(R.string.pressure) + ": " + UnitConvertor.format((float)pressure,windFormat)  + " " +
                 MainActivity.localize(sp, context, "pressureUnit", "hPa"));
@@ -77,7 +78,31 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         viewHolder.itemIcon.setText(weatherItem.getIcon());
 
     }
+    //ham xu ly huong gio
+    public  String getWindDirectionString(SharedPreferences sp, Context context, Weather weather,ImageView imageView) {
+        try {
+            if (Double.parseDouble(weather.getWind()) != 0) {
+                String pref = sp.getString("windDirectionFormat", null);
+                //truong hop cai dat la dung mui ten
+                if ("arrow".equals(pref)) {
+                    imageView.setImageResource(R.drawable.up_arrow);
+                    imageView.setRotation(weather.getWindDirectionDegree().floatValue());
+                    return "";
+                    //truong hop su dung text kieu N-E
+                } else if ("abbr".equals(pref)) {
+                    imageView.setImageResource(0);
+                    return UnitConvertor.getWindDirectionString(weather.getWindDirectionDegree());
+                }else{
+                    imageView.setImageResource(0);
+                    return "";
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
 
+        }
+        return "";
+    }
     @Override
     public int getItemCount() {
         if(itemList!=null){
@@ -85,7 +110,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         }
         return 0;
     }
-
+    //tang hieu nang ung dung.Su dung viewholder
     static class WeatherHolder extends RecyclerView.ViewHolder {
         public TextView itemDate;
         public TextView itemTemperature;
@@ -95,6 +120,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         public TextView itemHumidity;
         public TextView itemIcon;
         public View lineView;
+        public ImageView winddirection;
         public WeatherHolder(View view) {
             super(view);
             this.itemDate =  view.findViewById(R.id.itemDate);
@@ -105,6 +131,7 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
             this.itemHumidity = view.findViewById(R.id.itemHumidity);
             this.itemIcon =  view.findViewById(R.id.itemIcon);
             this.lineView = view.findViewById(R.id.lineView);
+            this.winddirection=view.findViewById(R.id.winddirection);
         }
     }
 }

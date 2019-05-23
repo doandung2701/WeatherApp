@@ -9,8 +9,9 @@ import com.hust.buidoandung.weatherapp.R;
 
 import java.text.DecimalFormat;
 import java.util.Locale;
-
+//su dung de chuyen doi don vi
 public class UnitConvertor {
+    //convert nhiet do
     public static float convertTemperature(float temperature, SharedPreferences sp) {
         if (sp.getString("unit", "°C").equals("°C")) {
             return UnitConvertor.kelvinToCelsius(temperature);
@@ -20,15 +21,15 @@ public class UnitConvertor {
             return temperature;
         }
     }
-
+    //Cong thuc doi do K ra do C
     public static float kelvinToCelsius(float kelvinTemp) {
         return kelvinTemp - 273.15f;
     }
-
+    ///Cong thuc doi do K ra do F
     public static float kelvinToFahrenheit(float kelvinTemp) {
         return ((9*kelvinTemp) / 5) -459.67f;
     }
-
+    //xu ly luong mua. doi don vi
     public static String getRainString(double rain, SharedPreferences sp) {
         if (rain > 0) {
             if (!sp.getString("lengthUnit", "mm").equals("mm")) {
@@ -53,7 +54,7 @@ public class UnitConvertor {
                  return pressure;
         }
     }
-
+    ///xu ly toc do gio. doi don vi
     public static double convertWind(double wind, SharedPreferences sp) {
         String unit=sp.getString("speedUnit","m/s");
         switch (unit){
@@ -65,12 +66,13 @@ public class UnitConvertor {
                 return wind;
         }
     }
+    //format so theo chuan
     public static String format(float data,DecimalFormat format){
         return format.format(data);
     }
-
+        //Thiet lap icon cho thoi tiet tung thoi diem
+    //moi Weather condition id  trong object weather cua du lieu tra ve bieu thi thoi tiet khu vuc do.
     public static  String setWeatherIcon(int actualId, int hourOfDay) {
-        int id = actualId / 100;
         String icon = "";
         Context context= MyApplication.getInstance();
         if (actualId == 800) {
@@ -80,12 +82,18 @@ public class UnitConvertor {
                 icon = context.getString(R.string.weather_clear_night);
             }
         } else {
-            switch (id) {
+            switch (actualId/100) {
                 case 2:
                     icon = context.getString(R.string.weather_thunder);
                     break;
                 case 3:
                     icon = context.getString(R.string.weather_drizzle);
+                    break;
+                case 5:
+                    icon = context.getString(R.string.weather_rainy);
+                    break;
+                case 6:
+                    icon = context.getString(R.string.weather_snowy);
                     break;
                 case 7:
                     icon = context.getString(R.string.weather_foggy);
@@ -93,52 +101,46 @@ public class UnitConvertor {
                 case 8:
                     icon = context.getString(R.string.weather_cloudy);
                     break;
-                case 6:
-                    icon = context.getString(R.string.weather_snowy);
-                    break;
-                case 5:
-                    icon = context.getString(R.string.weather_rainy);
-                    break;
+
             }
         }
         return icon;
     }
-    public enum WindDirection {
-        NORTH, NORTH_NORTH_EAST, NORTH_EAST, EAST_NORTH_EAST,
-        EAST, EAST_SOUTH_EAST, SOUTH_EAST, SOUTH_SOUTH_EAST,
-        SOUTH, SOUTH_SOUTH_WEST, SOUTH_WEST, WEST_SOUTH_WEST,
-        WEST, WEST_NORTH_WEST, NORTH_WEST, NORTH_NORTH_WEST;
-
-        public static WindDirection byDegree(double degree) {
-            return byDegree(degree, WindDirection.values().length);
-        }
-
-        public static WindDirection byDegree(double degree, int numberOfDirections) {
-            WindDirection[] directions = WindDirection.values();
-            int availableNumberOfDirections = directions.length;
-
-            int direction = windDirectionDegreeToIndex(degree, numberOfDirections)
-                    * availableNumberOfDirections / numberOfDirections;
-
-            return directions[direction];
-        }
-
-        public String getLocalizedString(Context context) {
-            return context.getResources().getStringArray(R.array.windDirections)[ordinal()];
-        }
-
-        public String getArrow(Context context) {
-            return context.getResources().getStringArray(R.array.windDirectionArrows)[ordinal() / 2];
+    //convert deg to string
+    public static String getWindDirectionString(Double deg){
+        if(((0<=deg&&deg<=11.25)||(deg>348.75&&deg<=360))){
+            return "North";
+        }else if (deg>11.25&&deg<=33.75){
+            return "N-N-E";
+        }else if (deg>33.75&&deg<=56.25){
+            return "North East";
+        }else if (deg>56.25&&deg<=78.75){
+            return "E-N-E";
+        }else if (deg>78.75&&deg<=101.25){
+            return "East";
+        }else if (deg>101.25&&deg<=123.75){
+            return "E-S-E";
+        }else if (deg>123.75&&deg<=146.25){
+            return "South East";
+        }else if (deg>146.25&&deg<=168.75){
+            return "S-S-E";
+        }else if (deg>168.75&&deg<=191.25){
+            return "South";
+        }else if (deg>191.25&&deg<=213.75){
+            return "S-S-W";
+        }else if (deg>213.75&&deg<=236.25){
+            return "South West";
+        }else if (deg>236.25&&deg<=258.75){
+            return "W-S-W";
+        }else if (deg>258.75&&deg<=281.25){
+            return "West";
+        }else if (deg>281.25&&deg<=303.75){
+            return "W-N-W";
+        }else if (deg>303.75&&deg<=326.25){
+            return "North West";
+        }else {
+            return "N-N-W";
         }
     }
-    public static int windDirectionDegreeToIndex(double degree, int numberOfDirections) {
-        degree %= 360;
-        if(degree < 0) degree += 360;
 
-        degree += 180 / numberOfDirections;
-
-        int direction = (int)Math.floor(degree * numberOfDirections / 360);
-
-        return direction % numberOfDirections;
-    }
 }

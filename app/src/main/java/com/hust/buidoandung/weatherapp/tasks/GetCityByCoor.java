@@ -19,11 +19,9 @@ import java.util.Locale;
 public class GetCityByCoor extends AsyncTask<String,String,String> {
 //    weather
     ProgressDialog progressDialog;
-    Context context;
     MainActivity mainActivity;
-    public GetCityByCoor(ProgressDialog progressDialog, Context context, MainActivity activity) {
+    public GetCityByCoor(ProgressDialog progressDialog, MainActivity activity) {
        this.progressDialog=progressDialog;
-       this.context=context;
        this.mainActivity=activity;
     }
 
@@ -103,7 +101,7 @@ public class GetCityByCoor extends AsyncTask<String,String,String> {
         return null;
     }
     private URL createURL(String lat,String lon) throws Exception{
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
         String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
         StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
         stringBuilder.append("weather").append("?");

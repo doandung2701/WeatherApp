@@ -4,9 +4,11 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,6 +24,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
@@ -36,6 +39,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.hust.buidoandung.weatherapp.adapter.ViewPagerAdapter;
@@ -63,8 +67,9 @@ import java.util.Map;
 import static android.text.format.DateFormat.getDateFormat;
 import static android.text.format.DateFormat.getTimeFormat;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, ConnectivityReceiver.ConnectivityReceiverListener{
+public class MainActivity extends AppCompatActivity implements LocationListener{
     private static int SETTINGCODE=1;
+    BroadcastReceiver broadcastReceiver;
     public String recentCity = "";
     Weather todayWeather;
     TextView todayTemperature;
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     ViewPager viewPager;
     TabLayout tabLayout;
     Typeface weatherFont;
+    ImageView winddirection;
     LocationManager locationManager;
     ProgressDialog progressDialog;
     public List<Weather> longTermWeather = new ArrayList<>();
@@ -86,11 +92,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public List<Weather> longTermTomorrowWeather = new ArrayList<>();
     private static Map<String, Integer> speedUnits = new HashMap<>(3);
     private static Map<String, Integer> pressUnits = new HashMap<>(3);
+
     String[] permissions= new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.CHANGE_WIFI_STATE,
+            Manifest.permission.CHANGE_NETWORK_STATE,
             Manifest.permission.INTERNET};
     @RequiresApi(api = Build.VERSION_CODES.M)
     @Override
@@ -109,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         todayIcon =  findViewById(R.id.todayIcon);
         viewPager=findViewById(R.id.viewPager);
         tabLayout=findViewById(R.id.tabs);
+        winddirection=findViewById(R.id.winddirection);
         weatherFont = Typeface.createFromAsset(this.getAssets(), "fonts/weather.ttf");
         todayIcon.setTypeface(weatherFont);
 
@@ -127,16 +138,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         }
         setStatusBarTrans(true);
+        broadcastReceiver=new ConnectivityReceiver();
     }
 
 
-    protected void setStatusBarTrans(boolean makeTrans) {
+    public void setStatusBarTrans(boolean makeTrans) {
         if (makeTrans) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
     }
+    //update data in viewPage
     public void updateLongTermWeatherUI(List<List<Weather>> data) {
         if(data!=null){
             this.longTermTodayWeather=data.get(0);
@@ -206,8 +219,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 getWeatherByUsingLocationService();
                 return true;
             case R.id.action_refresh:
-                getTodayWeather();
-                getLongTermWeather();
+                if(checkConnection()){
+                    getTodayWeather();
+                    getLongTermWeather();
+                }
              return true;
             case R.id.action_map:
                 Intent intent1=new Intent(MainActivity.this,MapActivity.class);
@@ -217,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                  return super.onOptionsItemSelected(item);
         }
     }
-
+    //cap nhat lai view khi setting thay doi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -229,7 +244,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         updateLongTermWeatherUI(dataWeather);
 
     }
-
+    //Su dung LocationService de lay du lieu dia chi
     @SuppressLint("MissingPermission")
     private void getWeatherByUsingLocationService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -260,6 +275,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         }
     }
+    //xu ly viec lay quyen tu nguoi dung
     @RequiresApi(api = Build.VERSION_CODES.M)
     private void requestMultiplePermissions(){
         List<String> remainingPermissions = new ArrayList<>();
@@ -311,13 +327,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void getTodayWeather() {
-        new GetTodayWeatherTask(progressDialog,this,this).execute();
+        new GetTodayWeatherTask(progressDialog,this).execute();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        MyApplication.getInstance().setConnectivityListener(this);
+        //muc dich de lang nghe viec network state change
+        IntentFilter intentFilter=new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(broadcastReceiver,intentFilter);
         //preloadWeather();
     }
 
@@ -334,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String result=searchText.getText().toString();
-                if(!result.isEmpty()){
+                if(!result.isEmpty()&&checkConnection()){
                     saveLocation(result);
                 }
             }
@@ -385,7 +404,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         );
     }
     public void getLongTermWeather() {
-        new GetLongTermWeatherTask(progressDialog,this, this).execute();
+        new GetLongTermWeatherTask(progressDialog, this).execute();
     }
     private void updateLastUpdateTime(long timeInMillis) {
         if (timeInMillis < 0) {
@@ -447,20 +466,33 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
        }
     }
 
-    public static String getWindDirectionString(SharedPreferences sp, Context context, Weather weather) {
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(broadcastReceiver);
+
+    }
+
+    public  String getWindDirectionString(SharedPreferences sp, Context context, Weather weather) {
         try {
             if (Double.parseDouble(weather.getWind()) != 0) {
                 String pref = sp.getString("windDirectionFormat", null);
                 if ("arrow".equals(pref)) {
-                    return weather.getWindDirection(8).getArrow(context);
+                    this.winddirection.setImageResource(R.drawable.up_arrow);
+                    this.winddirection.setRotation(weather.getWindDirectionDegree().floatValue());
+                    return "";
                 } else if ("abbr".equals(pref)) {
-                    return weather.getWindDirection().getLocalizedString(context);
+                    this.winddirection.setImageResource(0);
+                    return UnitConvertor.getWindDirectionString(weather.getWindDirectionDegree());
+                }else{
+                    this.winddirection.setImageResource(0);
+                    return "";
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }
 
+        }
         return "";
     }
     private String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
@@ -481,9 +513,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return result;
     }
 
-    private void preloadWeather() {
-            new GetTodayWeatherTask(progressDialog, this, this).execute();
-            new GetLongTermWeatherTask(progressDialog,this,this).execute();
+    public void preloadWeather() {
+            new GetTodayWeatherTask(progressDialog,  this).execute();
+            new GetLongTermWeatherTask(progressDialog,this).execute();
     }
 
 
@@ -515,7 +547,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         editor.putFloat("lat", (float) latitude);
         editor.putFloat("long", (float) longitude);
         editor.commit();
-        new GetCityByCoor(progressDialog,this,this).execute(Double.toString(latitude),Double.toString(longitude));
+        new GetCityByCoor(progressDialog,this).execute(Double.toString(latitude),Double.toString(longitude));
     }
 
     @Override
@@ -533,10 +565,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     }
 
-    @Override
-    public void onNetworkConnectionChanged(boolean isConnected) {
-            if(isConnected){
-                preloadWeather();
-            }
+    private boolean checkConnection(){
+        return ConnectivityReceiver.isConnected();
     }
 }

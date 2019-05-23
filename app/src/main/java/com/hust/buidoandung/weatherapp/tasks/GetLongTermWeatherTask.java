@@ -31,11 +31,9 @@ import java.util.TimeZone;
 public class GetLongTermWeatherTask extends AsyncTask<String,String, List<List<Weather>>> {
 //    forecast
 ProgressDialog progressDialog;
-    Context context;
     MainActivity mainActivity;
-    public GetLongTermWeatherTask(ProgressDialog progressDialog, Context context, MainActivity activity) {
+    public GetLongTermWeatherTask(ProgressDialog progressDialog, MainActivity activity) {
         this.progressDialog=progressDialog;
-        this.context=context;
         this.mainActivity=activity;
     }
 
@@ -156,7 +154,7 @@ ProgressDialog progressDialog;
                 }
                 r.close();
                 connection.disconnect();
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
                 Calendar now = Calendar.getInstance();
                 editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
                 data=parseTodayJson(response);
@@ -170,7 +168,7 @@ ProgressDialog progressDialog;
         return  null;
     }
     private URL createURL() throws Exception{
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
         String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
         StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
         stringBuilder.append("forecast").append("?");

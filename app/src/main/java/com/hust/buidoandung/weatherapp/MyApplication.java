@@ -3,7 +3,6 @@ package com.hust.buidoandung.weatherapp;
 import android.app.Application;
 
 import com.hust.buidoandung.weatherapp.receiver.ConnectivityReceiver;
-
 public class MyApplication extends Application {
     private static MyApplication mInstance;
 
@@ -18,7 +17,4 @@ public class MyApplication extends Application {
         return mInstance;
     }
 
-    public void setConnectivityListener(ConnectivityReceiver.ConnectivityReceiverListener listener) {
-        ConnectivityReceiver.connectivityReceiverListener = listener;
-    }
 }

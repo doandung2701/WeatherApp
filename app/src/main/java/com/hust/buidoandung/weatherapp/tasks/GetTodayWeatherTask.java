@@ -25,11 +25,9 @@ import java.util.TimeZone;
 
 public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
     ProgressDialog progressDialog;
-    Context context;
     MainActivity mainActivity;
-    public GetTodayWeatherTask(ProgressDialog progressDialog, Context context, MainActivity activity) {
+    public GetTodayWeatherTask(ProgressDialog progressDialog,  MainActivity activity) {
        this.progressDialog=progressDialog;
-       this.context=context;
        this.mainActivity=activity;
     }
 
@@ -50,7 +48,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
                 }
                 r.close();
                 connection.disconnect();
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
                 Calendar now = Calendar.getInstance();
                 editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
                 weather=parseTodayJson(response);
@@ -69,13 +67,13 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
         progressDialog.dismiss();
         if(weather==null){
             Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("city", DefaultValue.DEFAULT_CITY);
             editor.commit();
             return ;
         }else{
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mainActivity);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putFloat("lat", weather.getLat());
             editor.putFloat("long", weather.getLog());
@@ -171,7 +169,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
         }
     }
     private URL createURL() throws Exception{
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
         String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
         StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
         stringBuilder.append("weather").append("?");

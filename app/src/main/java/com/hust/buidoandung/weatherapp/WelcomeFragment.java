@@ -11,10 +11,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-
-/**
- * A simple {@link Fragment} subclass.
- */
 public class WelcomeFragment extends Fragment {
 
     TextView title;
@@ -23,9 +19,10 @@ public class WelcomeFragment extends Fragment {
     RelativeLayout layout;
     ImageView icon;
     public WelcomeFragment() {
-        // Required empty public constructor
+
     }
-    public void populateForm(int icon, String... texts) {
+    //Do du lieu
+    public void setValue(int icon, String... texts) {
         title.setText(texts[0]);
         content.setText(texts[1]);
         if (texts.length == 3) {
@@ -37,6 +34,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        //lay ra thong tin step thu may
         int step = getArguments().getInt("step");
 
         View v = inflater.inflate(R.layout.fragment_welcome, container, false);
@@ -47,34 +45,35 @@ public class WelcomeFragment extends Fragment {
         icon = v.findViewById(R.id.imgWelcome);
         switch (step) {
             case 1:
-                populateForm(R.drawable.sun, "Greeting",
-                        "Welcome to our weather app!", "Swipe to find out more →");
+                setValue(R.drawable.sun, "Hi",
+                        "Welcome to weather app !", "Swipe to find out more →");
                 break;
             case 2:
-                populateForm(R.drawable.wind, "Weather info in hands",
-                        "Get weather infomation with you anywhere, anytime with our " +
-                                "robust OpenWeatherMap API!");
+                setValue(R.drawable.rain, "The life is easy",
+                        "With weather app, you never have to be afraid of the sudden rain!");
                 break;
             case 3:
-                populateForm(R.drawable.moon, "More day forecast",
-                        "Don't be afraid to go on a long trip! We provide more than 3 days forecast feature!");
+                setValue(R.drawable.moon, "More day forecast",
+                        "We provide more than 3 days forecast feature!");
                 break;
             case 4:
-                populateForm(R.drawable.rain, "Detect weather",
-                        "We using GPS to dectect your weather and show you your weather is here!");
+                setValue(R.drawable.gps, "Detect weather",
+                        "We can using GPS to dectect your weather and show you your weather is here!");
                 break;
             case 5:
-                populateForm(R.drawable.cloud, "And more...",
+                setValue(R.drawable.cloud, "And more...",
                         "We have a lot more interesting functionality. Go ahead and explore them yourself!");
                 break;
         }
         return v;
     }
+    //craete new WelcomeFragment
     public static WelcomeFragment newInstance(int step) {
         Bundle bundle = new Bundle();
         bundle.putInt("step", step);
 
         WelcomeFragment fragment = new WelcomeFragment();
+        //truyen doi tuong bundle sang de co the biet fragment so may duoc tao
         fragment.setArguments(bundle);
         return fragment;
     }

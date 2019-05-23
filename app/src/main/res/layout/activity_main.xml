@@ -57,15 +57,27 @@
                         android:text="No data"
                         android:textColor="@color/whiteTextColor"
                         android:textSize="16dp" />
-                    <TextView
-                        android:id="@+id/todayWind"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Wind: 0 m/s"
-                        android:textColor="@color/whiteTextColor"
-                        android:textSize="16dp" />
+                        android:layout_height="match_parent">
+                        <TextView
+                            android:id="@+id/todayWind"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Wind: 0 m/s"
+                            android:textColor="@color/whiteTextColor"
+                            android:textSize="16dp" />
 
+                        <ImageView
+                            android:id="@+id/winddirection"
+                            android:layout_marginLeft="4dp"
+                            android:paddingTop="3dp"
+                            android:layout_marginTop="3dp"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:src="@drawable/up_arrow"/>
+                    </LinearLayout>
                     <TextView
                         android:id="@+id/todayPress"
                         android:layout_width="wrap_content"
