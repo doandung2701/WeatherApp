@@ -22,34 +22,38 @@ public class IntroActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //De cho khong hien thi title cua ung dung
+        //Ẩn đi tile của ứng dụng
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //thiết lập giao diện full màn hình khi đã bỏ title
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_intro);
         setStatusBarTrans(true);
-        //tao ra Rotate Animation . xoay to 0 toi 360. Toa do diem quay la 50% theo truc X va Y
+        //tạo ra Rotate Animation . xoay từ 0 tới 360. Tọa độ điểm quay 50% theo trục X và Y
         RotateAnimation rotate = new RotateAnimation(
                 0, 360,
                 Animation.RELATIVE_TO_SELF, 0.5f,
                 Animation.RELATIVE_TO_SELF, 0.5f
         );
-        //thiet lap thoi gian quay
+        //thiết lập thời gian quay của 1 lần quay
         rotate.setDuration(800);
-        //thiet lap so lan lap quay
+        //thiết lập số lần lặp quay
         rotate.setRepeatCount(Animation.INFINITE);
         ImageView view = findViewById(R.id.icon_intro);
+        //chạy animation trên imageView chứa icon
         view.startAnimation(rotate);
-
+        //lấy tham chiếu tới SharedPreference
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
-//kiem tra xem day la lan dau vao ung dung hay gi. Neu la lan dau. thi se dieu huong toi man hinh Welcome.
-        //Khong thi dieu huong toi man hinh main
+       //Kiểm tra ứng dụng được truy cập lần đầu hay không.
         if (preferences.getBoolean("INTRO",true)){
+            //Nếu là lần đầu hoặc là bỏ qua welcome. ta khởi chạy intent tới WelcomeActivity
             intent = new Intent(IntroActivity.this, WelcomeActivity.class);
+            //cập nhật trạng thái biến INTRO trong SharedPreference
             editor.putBoolean("INTRO",false);
             editor.commit();
         }else{
+            //cồn không ta điều hướng tới MainActivity
             intent = new Intent(IntroActivity.this, MainActivity.class);
         }
         //Muc dich de chay 1 luong delay 4 s. sau 4s man hinh se tu dong chuyen sang activity khca
@@ -62,6 +66,7 @@ public class IntroActivity extends AppCompatActivity {
         },4000);
 
     }
+    //Dùng để làm trong suốt thanh statusbar
     protected void setStatusBarTrans(boolean makeTrans) {
         if (makeTrans) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);

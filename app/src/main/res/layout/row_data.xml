@@ -5,12 +5,6 @@
     android:paddingBottom="16dp"
     android:orientation="vertical">
 
-    <View
-        android:id="@+id/lineView"
-        android:layout_width="match_parent"
-        android:layout_height="2px"
-        android:background="?android:attr/listDivider" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -53,8 +47,8 @@
                        <ImageView
                            android:id="@+id/winddirection"
                            android:layout_marginLeft="4dp"
-                           android:paddingTop="3dp"
-                           android:layout_marginTop="3dp"
+                           android:paddingTop="4dp"
+                           android:layout_marginTop="5dp"
                            android:layout_width="25dp"
                            android:layout_height="25dp"
                            android:src="@drawable/up_arrow"/>

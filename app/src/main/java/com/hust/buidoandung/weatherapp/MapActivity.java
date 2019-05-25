@@ -16,6 +16,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
@@ -95,6 +96,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         CameraUpdate location = CameraUpdateFactory.newLatLngZoom(
                 coordinate, 8);
         mMap.animateCamera(location);
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(coordinate);
+        markerOptions.title("Your location.");
+        googleMap.addMarker(markerOptions);
         setUpMap();
     }
 

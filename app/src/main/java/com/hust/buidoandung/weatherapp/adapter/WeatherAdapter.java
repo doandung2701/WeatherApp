@@ -119,7 +119,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
         public TextView itemPressure;
         public TextView itemHumidity;
         public TextView itemIcon;
-        public View lineView;
         public ImageView winddirection;
         public WeatherHolder(View view) {
             super(view);
@@ -130,7 +129,6 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
             this.itemPressure =  view.findViewById(R.id.itemPressure);
             this.itemHumidity = view.findViewById(R.id.itemHumidity);
             this.itemIcon =  view.findViewById(R.id.itemIcon);
-            this.lineView = view.findViewById(R.id.lineView);
             this.winddirection=view.findViewById(R.id.winddirection);
         }
     }

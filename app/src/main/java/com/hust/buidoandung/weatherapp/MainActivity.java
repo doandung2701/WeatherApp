@@ -127,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         speedUnits.put("m/s", R.string.speed_unit_mps);
         speedUnits.put("kph", R.string.speed_unit_kph);
         speedUnits.put("mph", R.string.speed_unit_mph);
-        speedUnits.put("kn", R.string.speed_unit_kn);
 
         pressUnits.put("hPa", R.string.pressure_unit_hpa);
         pressUnits.put("kPa", R.string.pressure_unit_kpa);
@@ -333,26 +332,32 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     protected void onResume() {
         super.onResume();
-        //muc dich de lang nghe viec network state change
+        //lắng nghe network state change
         IntentFilter intentFilter=new IntentFilter();
         intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        //đăng kí sự kiện
         registerReceiver(broadcastReceiver,intentFilter);
         //preloadWeather();
     }
 
     @SuppressLint("RestrictedApi")
     private void searchCity() {
+        //tạo ra đối tượng AlertDialog
         AlertDialog.Builder alert=new AlertDialog.Builder(this)
                 .setTitle("Search for city");
         final EditText searchText=new EditText(this);
+        //thiết lập kiểu nhập cho input là text.
         searchText.setInputType(InputType.TYPE_CLASS_TEXT);
+        //số dòng tối đa là 1, và chỉ dùng 1 dòng
         searchText.setMaxLines(1);
         searchText.setSingleLine(true);
+        //add search Text vào AlertDialog
         alert.setView(searchText,32,0,32,3);
         alert.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 String result=searchText.getText().toString();
+                //nếu có text nhập và internet đang hiện hữu, hệ thống lưu lại tên vị trí và cập nhật dữ liệu
                 if(!result.isEmpty()&&checkConnection()){
                     saveLocation(result);
                 }
@@ -364,6 +369,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
             }
         });
+        //build ra dialog. sau đó có gán thêm animation khi open và close dialog
         AlertDialog dialog = alert.create();
         dialog.getWindow().getAttributes().windowAnimations = R.style.DialogSearchStyle;
         dialog.show();
@@ -534,19 +540,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
     @Override
     public void onLocationChanged(Location location) {
+        //tắt bỏ progress
         progressDialog.dismiss();
         try {
+            //xóa bỏ update giúp giảm việc lắng nghe thay đổi
             locationManager.removeUpdates(this);
         } catch (SecurityException e) {
             Log.e("LocationManager", "permissions issue", e);
         }
+        //lấy thông tin tọa độ thu thập được
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
+        //lấy ra đối tượng SharedPreferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
+        //lưu thông tin vào SharePreferences
         editor.putFloat("lat", (float) latitude);
         editor.putFloat("long", (float) longitude);
         editor.commit();
+        //tạo luồng mới xử lý việc lấy tên thành phố thông qua tọa độ
         new GetCityByCoor(progressDialog,this).execute(Double.toString(latitude),Double.toString(longitude));
     }
 

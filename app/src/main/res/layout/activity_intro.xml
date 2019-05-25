@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".IntroActivity"
-    android:background="@drawable/after_noon">
+
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".IntroActivity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/after_noon">
         <ImageView
             android:id="@+id/icon_intro"
             android:layout_width="192dp"
@@ -16,4 +15,3 @@
             android:layout_centerInParent="true"
             android:src="@drawable/sun"/>
     </RelativeLayout>
-</android.support.constraint.ConstraintLayout>

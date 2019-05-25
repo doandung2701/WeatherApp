@@ -46,7 +46,6 @@ public class GetCityByCoor extends AsyncTask<String,String,String> {
             }
         }catch (Exception e){
             e.printStackTrace();
-
         }
         return weather;
     }
@@ -64,7 +63,7 @@ public class GetCityByCoor extends AsyncTask<String,String,String> {
     protected void onPostExecute(final String s) {
         progressDialog.dismiss();
         if(s==null){
-            Snackbar.make(mainActivity.findViewById(android.R.id.content),"Has error when collect data by using GPS",Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mainActivity.findViewById(android.R.id.content),"Cant file city",Snackbar.LENGTH_LONG).show();
         }
         mainActivity.runOnUiThread(new Runnable() {
             @Override

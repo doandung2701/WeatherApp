@@ -33,6 +33,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
 
     @Override
     protected Weather doInBackground(String... strings) {
+
         try {
             Weather weather;
             URL url=createURL();
@@ -50,14 +51,21 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
                 connection.disconnect();
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
                 Calendar now = Calendar.getInstance();
-                editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
+                editor.putLong("lastUpdate", now.getTimeInMillis());
+                editor.putString("todayWeather",response);
+                editor.commit();
                 weather=parseTodayJson(response);
                 return weather;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
 
+
+        }
+        SharedPreferences editor = PreferenceManager.getDefaultSharedPreferences(mainActivity);
+        String response=editor.getString("todayWeather","");
+        if(response!=""){
+            return parseTodayJson(response);
         }
         return null;
     }
@@ -101,6 +109,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
 
 
     private Weather parseTodayJson(String response) {
+
         try {
             JSONObject reader = new JSONObject(response);
             final String code = reader.optString("cod");

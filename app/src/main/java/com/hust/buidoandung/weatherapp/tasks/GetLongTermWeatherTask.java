@@ -156,16 +156,26 @@ ProgressDialog progressDialog;
                 connection.disconnect();
                 SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(mainActivity).edit();
                 Calendar now = Calendar.getInstance();
-                editor.putLong("lastUpdate", now.getTimeInMillis()).apply();
+                editor.putLong("lastUpdate", now.getTimeInMillis());
+                editor.putString("longTermTodayWeather",response);
+                editor.commit();
                 data=parseTodayJson(response);
                 return data;
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return  null;
 
         }
-        return  null;
+        SharedPreferences editor = PreferenceManager.getDefaultSharedPreferences(mainActivity);
+        String response=editor.getString("longTermTodayWeather","");
+        if(response!=""){
+            try {
+                return parseTodayJson(response);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
     private URL createURL() throws Exception{
         SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);

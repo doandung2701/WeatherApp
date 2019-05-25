@@ -31,6 +31,7 @@ public class SettingsActivity extends PreferenceActivity
         });
         addPreferencesFromResource(R.xml.preferences);
     }
+    //lang nghe su kien khi thay doi cai dat
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
@@ -46,6 +47,7 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     protected void onResume() {
         super.onResume();
+        //đăng kí sự kiện setting change tron ghàm onResume
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
         setListPreferenceSummary("unit");
         setListPreferenceSummary("speedUnit");
@@ -57,7 +59,7 @@ public class SettingsActivity extends PreferenceActivity
         ListPreference preference = (ListPreference) findPreference(preferenceKey);
         preference.setSummary(preference.getEntry());
     }
-
+    //huy dang ky su kien
     @Override
     protected void onPause() {
         super.onPause();
