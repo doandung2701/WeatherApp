@@ -63,7 +63,7 @@ public class IntroActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        },4000);
+        },2000);
 
     }
     //Dùng để làm trong suốt thanh statusbar
