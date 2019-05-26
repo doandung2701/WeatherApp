@@ -20,6 +20,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -227,6 +228,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 Intent intent1=new Intent(MainActivity.this,MapActivity.class);
                 startActivity(intent1);
                 return true;
+            case R.id.action_graphs:
+                Intent intent2=new Intent(MainActivity.this,ChartActivity.class);
+                intent2.putParcelableArrayListExtra("TemperatureHourly", (ArrayList<? extends Parcelable>) longTermTodayWeather);
+                intent2.putParcelableArrayListExtra("TomorrowHourly", (ArrayList<? extends Parcelable>) longTermTomorrowWeather);
+                startActivity(intent2);
             default:
                  return super.onOptionsItemSelected(item);
         }

@@ -52,6 +52,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
+        <activity android:name=".ChartActivity"/>
 
         <receiver
             android:name=".receiver.ConnectivityReceiver"

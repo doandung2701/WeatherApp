@@ -21,3 +21,4 @@
         app:title="@string/action_settings"
         app:titleTextColor="@color/colorAccent"/>
 </android.support.design.widget.AppBarLayout>
+

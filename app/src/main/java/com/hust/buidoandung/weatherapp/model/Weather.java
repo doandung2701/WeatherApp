@@ -1,6 +1,8 @@
 package com.hust.buidoandung.weatherapp.model;
 
 import android.content.Context;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
 
@@ -10,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class Weather {
+public class Weather implements Parcelable {
     private String city;
     private String country;
     private Date date;
@@ -27,6 +29,42 @@ public class Weather {
     private float lat;
     private float log;
     private Double windDirectionDegree;
+
+    public Weather() {
+    }
+
+    protected Weather(Parcel in) {
+        city = in.readString();
+        country = in.readString();
+        temperature = in.readString();
+        description = in.readString();
+        wind = in.readString();
+        pressure = in.readString();
+        humidity = in.readString();
+        rain = in.readString();
+        id = in.readString();
+        icon = in.readString();
+        lat = in.readFloat();
+        log = in.readFloat();
+        if (in.readByte() == 0) {
+            windDirectionDegree = null;
+        } else {
+            windDirectionDegree = in.readDouble();
+        }
+    }
+
+    public static final Creator<Weather> CREATOR = new Creator<Weather>() {
+        @Override
+        public Weather createFromParcel(Parcel in) {
+            return new Weather(in);
+        }
+
+        @Override
+        public Weather[] newArray(int size) {
+            return new Weather[size];
+        }
+    };
+
     public Double getWindDirectionDegree() {
         return windDirectionDegree;
     }
@@ -204,4 +242,30 @@ public class Weather {
     }
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(city);
+        dest.writeString(country);
+        dest.writeString(temperature);
+        dest.writeString(description);
+        dest.writeString(wind);
+        dest.writeString(pressure);
+        dest.writeString(humidity);
+        dest.writeString(rain);
+        dest.writeString(id);
+        dest.writeString(icon);
+        dest.writeFloat(lat);
+        dest.writeFloat(log);
+        if (windDirectionDegree == null) {
+            dest.writeByte((byte) 0);
+        } else {
+            dest.writeByte((byte) 1);
+            dest.writeDouble(windDirectionDegree);
+        }
+    }
 }
