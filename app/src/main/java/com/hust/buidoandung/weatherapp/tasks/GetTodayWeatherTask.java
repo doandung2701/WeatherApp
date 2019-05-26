@@ -70,16 +70,16 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
                 //parse ra object
                 weather=parseTodayJson(response);
                 return weather;
+            }else{
+                Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
-
-
         }
         //trường hợp lỗi . xử lý bằng cách lấy dữ liệu cache đã lưu trong SharedPreferences
         SharedPreferences editor = PreferenceManager.getDefaultSharedPreferences(mainActivity);
         String response=editor.getString("todayWeather","");
-        if(response!=""){
+        if(!response.equals("")){
             return parseTodayJson(response);
         }
         //nếu k có cache. đành return null :(

@@ -175,27 +175,26 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 //tạo Adapter
                 ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-                Bundle bundle = new Bundle();
-
-                //Fragment today
-                bundle.putInt("day", 0);
+                Bundle bundleToday = new Bundle();
+                bundleToday.putInt("day", 0);
                 WeatherFragment recyclerViewFragmentToday = new WeatherFragment();
-                recyclerViewFragmentToday.setArguments(bundle);
+                recyclerViewFragmentToday.setArguments(bundleToday);
                 viewPagerAdapter.addFragment(recyclerViewFragmentToday, "Today");
 
                 //fragment tomorrow
-                bundle.putInt("day", 1);
+                Bundle bundleTomorrow = new Bundle();
+                bundleTomorrow.putInt("day", 1);
                 WeatherFragment recyclerViewFragmentTomorrow = new WeatherFragment();
-                recyclerViewFragmentTomorrow.setArguments(bundle);
+                recyclerViewFragmentTomorrow.setArguments(bundleTomorrow);
                 viewPagerAdapter.addFragment(recyclerViewFragmentTomorrow, "Tomorrow");
                 //fragment Later
-                bundle.putInt("day", 2);
+                Bundle bundleLater  = new Bundle();
+                bundleLater.putInt("day", 2);
                 WeatherFragment recyclerViewFragment = new WeatherFragment();
-                recyclerViewFragment.setArguments(bundle);
+                recyclerViewFragment.setArguments(bundleLater);
                 viewPagerAdapter.addFragment(recyclerViewFragment,"Later");
-
-                //update data
                 viewPagerAdapter.notifyDataSetChanged();
+                //update data
                 viewPager.setAdapter(viewPagerAdapter);
                 //thiết lập tab với viewpager
                 tabLayout.setupWithViewPager(viewPager);
@@ -256,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 intent2.putParcelableArrayListExtra("TemperatureHourly", (ArrayList<? extends Parcelable>) longTermTodayWeather);
                 intent2.putParcelableArrayListExtra("TomorrowHourly", (ArrayList<? extends Parcelable>) longTermTomorrowWeather);
                 startActivity(intent2);
+                return true;
             default:
                  return super.onOptionsItemSelected(item);
         }

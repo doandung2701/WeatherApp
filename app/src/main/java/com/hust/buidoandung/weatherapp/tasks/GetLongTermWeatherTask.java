@@ -125,6 +125,7 @@ ProgressDialog progressDialog;
 
                 cal.setTime(weather.getDate());
                 //nêu thuộc ngày hôm nay
+
                 if (cal.get(Calendar.DAY_OF_YEAR) == thisToday) {
                     longTermTodayWeather.add(weather);
                     //ngày mai
@@ -136,6 +137,7 @@ ProgressDialog progressDialog;
                 }
             }
             //thêm dữ liệu vào response
+
             data.add(longTermTodayWeather);
             data.add(longTermTomorrowWeather);
             data.add(longTermWeather);
@@ -212,6 +214,8 @@ ProgressDialog progressDialog;
                 //convert về đối tượng
                 data=parseTodayJson(response);
                 return data;
+            }else{
+                Snackbar.make(mainActivity.findViewById(android.R.id.content), "Specified city is not found.", Snackbar.LENGTH_LONG).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,7 +224,7 @@ ProgressDialog progressDialog;
         SharedPreferences editor = PreferenceManager.getDefaultSharedPreferences(mainActivity);
         String response=editor.getString("longTermTodayWeather","");
 
-        if(response!=""){
+        if(!response.equals("")){
             try {
                 //pase ngay đối tượng về dữ liệu cần response cho mainactivity
                 return parseTodayJson(response);
