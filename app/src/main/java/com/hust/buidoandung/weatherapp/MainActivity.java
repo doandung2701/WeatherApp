@@ -236,19 +236,32 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 return true;
                 //update thời tiết bằng location GPS hoặc internet
             case R.id.action_location:
-                getWeatherByUsingLocationService();
+                if(checkConnection()){
+                    getWeatherByUsingLocationService();
+
+                }else{
+                    Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
+
+                }
                 return true;
                 //updatelại dữ liệu
             case R.id.action_refresh:
                 if(checkConnection()){
                     getTodayWeather();
                     getLongTermWeather();
+                }else{
+                    Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
                 }
              return true;
                 //sang mapactivity
             case R.id.action_map:
                 Intent intent1=new Intent(MainActivity.this,MapActivity.class);
-                startActivity(intent1);
+                if(checkConnection()){
+                    startActivity(intent1);
+
+                }else{
+                    Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
+                }
                 return true;
             case R.id.action_graphs:
                 Intent intent2=new Intent(MainActivity.this,ChartActivity.class);
@@ -403,6 +416,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 //nếu có text nhập và internet đang hiện hữu, hệ thống lưu lại tên vị trí và cập nhật dữ liệu
                 if(!result.isEmpty()&&checkConnection()){
                     saveLocation(result);
+                }else{
+                    Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
                 }
             }
         });

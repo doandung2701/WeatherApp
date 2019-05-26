@@ -18,6 +18,8 @@ import android.widget.TextView;
 import com.hust.buidoandung.weatherapp.adapter.WelcomePagerAdapter;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -26,7 +28,13 @@ public class WelcomeActivity extends AppCompatActivity {
     ViewPager welcomePager;
     SharedPreferences.Editor editor;
     int currentStep = 1;
-    Thread  thread1;
+    Timer timer;
+
+    public void pageSwitcher(int seconds) {
+        timer = new Timer(); // Một luồng mới được sinh ra .
+        //sau mỗi khoảng t.g* 1000, và delay 1s, RemindTask sẽ được thực hiện
+        timer.scheduleAtFixedRate(new RemindTask(), 1000, seconds * 1000);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,39 +120,16 @@ public class WelcomeActivity extends AppCompatActivity {
 
             }
         });
-        //thread xử lý việc tự động chuyển page trong pager
-        thread1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (currentStep!=5){
-                    try{
-                        //thread ngủ 2 s. sau đó gửi mesage ra ngoài
-                        Thread.sleep(2000);
-                        mHandlerThread.sendEmptyMessage(0);
-                    }
-                    catch (InterruptedException ex){
-                        ex.printStackTrace();
-                    }
 
-                }
-            }
-        });
-        thread1.start();
+
     }
-    //handler xử lý sự kiện thi chuyển page
-    Handler mHandlerThread = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            //update page hiện tại
-            welcomePager.setCurrentItem(currentStep++);
-            //nếu là trang cuối.luồng b
-            if(currentStep==5){
-                thread1.interrupt();
-            }
 
-        }
-    };
+    @Override
+    protected void onResume() {
+        super.onResume();
+        pageSwitcher(2);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -172,5 +157,22 @@ public class WelcomeActivity extends AppCompatActivity {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
     }
-
+    class RemindTask extends TimerTask{
+        @Override
+        public void run() {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    //nếu là trang cuối
+                    if(currentStep>4){
+                        timer.cancel();
+                    }else{
+                        ///không thì sẽ next trang
+                        welcomePager.setCurrentItem(currentStep++);
+                    }
+                }
+            });
+        }
+    }
 }
+
