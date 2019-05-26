@@ -36,13 +36,15 @@ public class WelcomeFragment extends Fragment {
                              Bundle savedInstanceState) {
         //lay ra thong tin step thu may
         int step = getArguments().getInt("step");
-
+        //inflate đối tượng view
         View v = inflater.inflate(R.layout.fragment_welcome, container, false);
+        //tìm các biến trong v
         layout = v.findViewById(R.id.welcomeFragmentHolder);
         title = v.findViewById(R.id.txtTitle);
         content = v.findViewById(R.id.txtContent);
         help = v.findViewById(R.id.txtHelp);
         icon = v.findViewById(R.id.imgWelcome);
+        //với 1 bước. ta thiết lập giá trị cho title,content,icon ,help
         switch (step) {
             case 1:
                 setValue(R.drawable.sun, "Hi",
@@ -71,7 +73,6 @@ public class WelcomeFragment extends Fragment {
     public static WelcomeFragment newInstance(int step) {
         Bundle bundle = new Bundle();
         bundle.putInt("step", step);
-
         WelcomeFragment fragment = new WelcomeFragment();
         //truyen doi tuong bundle sang de co the biet fragment so may duoc tao
         fragment.setArguments(bundle);

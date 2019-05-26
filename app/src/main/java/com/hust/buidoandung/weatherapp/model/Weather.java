@@ -11,21 +11,36 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Weather {
+    //tên thành phố
     private String city;
+    //tên đất nc
     private String country;
+    //thời điểm của thời tiết
     private Date date;
+    //nhiệt độ
     private String temperature;
+    //miêu tả thời tiết
     private String description;
+    //gió
     private String wind;
+    //áp suất
     private String pressure;
+    //độ ẩm
     private String humidity;
+    //lượng mưa
     private String rain;
+    //id
     private String id;
+    //icon
     private String icon;
+    //t.g mặt trời mọc
     private Date sunrise;
+    //t.g mặt trời lặn
     private Date sunset;
+    //tọa độ
     private float lat;
     private float log;
+    //hướng gió
     private Double windDirectionDegree;
     public Double getWindDirectionDegree() {
         return windDirectionDegree;
@@ -115,12 +130,14 @@ public class Weather {
     public Date getSunrise(){
         return this.sunrise;
     }
-
+    //convert thời gian được trả về thành kiểu date và thiết lập cho sunrise
     public void setSunrise(String dateString) {
         try {
+            //nếu kiiểu trả về là long
             setSunrise(new Date(Long.parseLong(dateString) * 1000));
         }
         catch (Exception e) {
+            //còn lại format theo đúng định dạng trả veè
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
             try {
                 setSunrise(inputFormat.parse(dateString));
@@ -139,7 +156,7 @@ public class Weather {
     public Date getSunset(){
         return this.sunset;
     }
-
+    //tương tự như sunrise
     public void setSunset(String dateString) {
         try {
             setSunset(new Date(Long.parseLong(dateString) * 1000));
@@ -171,7 +188,7 @@ public class Weather {
     public Date getDate(){
         return this.date;
     }
-
+    //thiết lập thời gian. tương tự sunrise,sunset
     public void setDate(String dateString) {
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
             try {
