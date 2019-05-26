@@ -36,9 +36,9 @@ public class IntroActivity extends AppCompatActivity {
                 Animation.RELATIVE_TO_SELF, 0.5f
         );
         //thiết lập thời gian quay của 1 lần quay
-        rotate.setDuration(800);
+        rotate.setDuration(500);
         //thiết lập số lần lặp quay
-        rotate.setRepeatCount(Animation.INFINITE);
+        rotate.setRepeatCount(4);
         ImageView view = findViewById(R.id.icon_intro);
         //chạy animation trên imageView chứa icon
         view.startAnimation(rotate);
@@ -63,7 +63,7 @@ public class IntroActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        },2000);
+        },3000);
 
     }
     //Dùng để làm trong suốt thanh statusbar
