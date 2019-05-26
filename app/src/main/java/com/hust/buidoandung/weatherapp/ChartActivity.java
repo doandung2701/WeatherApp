@@ -3,6 +3,7 @@ package com.hust.buidoandung.weatherapp;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -74,11 +75,12 @@ public class ChartActivity extends AppCompatActivity {
         renderer.setPointStyle(PointStyle.CIRCLE);
         renderer.setPointStrokeWidth(3);
         renderer.setDisplayChartValues(true); //hiện thị giá trị của các điểm
-        renderer.setChartValuesTextSize(20); // set kích cỡ các giá trị hiển thị
+        renderer.setChartValuesTextSize(30); // set kích cỡ các giá trị hiển thị
 
         XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer(); //đồ thị
         mRenderer.addSeriesRenderer(renderer);
-        mRenderer.setLabelsTextSize(22);
+        mRenderer.setLabelsTextSize(25);
+        mRenderer.setLegendTextSize(20); //set kích cỡ chữ chú thích
         mRenderer.setZoomEnabled(false,false); //không zoom được đồ thị
 
         // We want to avoid black border
@@ -132,11 +134,12 @@ public class ChartActivity extends AppCompatActivity {
         renderer1.setPointStyle(PointStyle.CIRCLE);
         renderer1.setPointStrokeWidth(3);
         renderer1.setDisplayChartValues(true); //hiện thị giá trị của các điểm
-        renderer1.setChartValuesTextSize(20); // set kích cỡ các giá trị hiển thị
+        renderer1.setChartValuesTextSize(30); // set kích cỡ các giá trị hiển thị
 
         XYMultipleSeriesRenderer mRenderer1 = new XYMultipleSeriesRenderer(); //đồ thị
         mRenderer1.addSeriesRenderer(renderer1);
-        mRenderer1.setLabelsTextSize(22);
+        mRenderer1.setLabelsTextSize(25);
+        mRenderer1.setLegendTextSize(20); //set kích cỡ chữ chú thích
         mRenderer1.setZoomEnabled(false,false); //không zoom được đồ thị
 
         // We want to avoid black border
