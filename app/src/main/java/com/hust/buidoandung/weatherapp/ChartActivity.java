@@ -79,8 +79,9 @@ public class ChartActivity extends AppCompatActivity {
 
         XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer(); //đồ thị
         mRenderer.addSeriesRenderer(renderer);
-        mRenderer.setLabelsTextSize(25);
-        mRenderer.setLegendTextSize(20); //set kích cỡ chữ chú thích
+        mRenderer.setLabelsTextSize(20);
+        mRenderer.setLegendTextSize(30); //set kích cỡ chữ chú thích
+
         mRenderer.setZoomEnabled(false,false); //không zoom được đồ thị
 
         // We want to avoid black border
@@ -138,8 +139,8 @@ public class ChartActivity extends AppCompatActivity {
 
         XYMultipleSeriesRenderer mRenderer1 = new XYMultipleSeriesRenderer(); //đồ thị
         mRenderer1.addSeriesRenderer(renderer1);
-        mRenderer1.setLabelsTextSize(25);
-        mRenderer1.setLegendTextSize(20); //set kích cỡ chữ chú thích
+        mRenderer1.setLabelsTextSize(20);
+        mRenderer1.setLegendTextSize(30); //set kích cỡ chữ chú thích
         mRenderer1.setZoomEnabled(false,false); //không zoom được đồ thị
 
         // We want to avoid black border
