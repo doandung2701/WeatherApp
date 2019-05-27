@@ -311,6 +311,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 });
                 progressDialog.show();
                 //nguồn cập nhật từ mạng
+                //mintime: khoảng thời gian tối thiểu giữa các lần cập nhật vị trí, tính bằng mili giây
+                //minDistance khoảng cách tối thiểu giữa các lần cập nhật vị trí, tính bằng mét
+                //listener: lớp lắng nghe sự thay đổi này
                 if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
                 }
@@ -416,16 +419,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 //nếu có text nhập và internet đang hiện hữu, hệ thống lưu lại tên vị trí và cập nhật dữ liệu
                 if(!result.isEmpty()&&checkConnection()){
                     saveLocation(result);
-                }else{
-                    Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
+                }else {
+                    //nếu k có kết nối mạng
+                    if(checkConnection()==false){
+                        Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
+                    }else{
+                        //yêu cầu người dùng nhập dữ liệu
+                        Snackbar.make(findViewById(android.R.id.content), "Location cant be empty", Snackbar.LENGTH_LONG).show();
+                    }
                 }
             }
         });
-        //nếu bấm vào cancel. k thực hiện gì
         alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                dialog.dismiss();
             }
         });
         //build ra dialog. sau đó có gán thêm animation khi open và close dialog
@@ -441,6 +449,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         //lấy ra thành phố gần nhất được tìm kiếm
         recentCity = preferences.getString("city", DefaultValue.DEFAULT_CITY);
         SharedPreferences.Editor editor = preferences.edit();
+        //update dữ liệu là thành phố vừa tìm kiếm xong
         editor.putString("city", result);
         //update
         editor.commit();
@@ -677,7 +686,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         //tắt bỏ progress
         progressDialog.dismiss();
         try {
-            //xóa bỏ update giúp giảm việc lắng nghe thay đổi
+            //hủy bỏ việc đăng kí lắng nghe update trên activity này
             locationManager.removeUpdates(this);
         } catch (SecurityException e) {
             Log.e("LocationManager", "permissions issue", e);
