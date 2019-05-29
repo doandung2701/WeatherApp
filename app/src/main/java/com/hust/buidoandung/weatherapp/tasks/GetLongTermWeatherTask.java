@@ -102,13 +102,13 @@ ProgressDialog progressDialog;
                 String rain = "";
                 //nếu có mưa
                 if (rainObj != null) {
-                    rain = MainActivity.getRainOrSnowString(rainObj);
+                    rain = UnitConvertor.getRainOrSnowString(rainObj);
                 } else {
                     //nếu có tuyết
                     JSONObject snowObj = listItem.optJSONObject("snow");
                     if (snowObj != null) {
                         //lây ra thông tin
-                        rain = MainActivity.getRainOrSnowString(snowObj);
+                        rain = UnitConvertor.getRainOrSnowString(snowObj);
                     } else {
                         //k thì gán bằng 0.tức k mưa
                         rain = "0";
@@ -172,7 +172,7 @@ ProgressDialog progressDialog;
             mainActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    mainActivity.updateLongTermWeatherUI(lists);
+                    mainActivity.updateViewPager(lists);
 
                 }
             });
@@ -186,7 +186,23 @@ ProgressDialog progressDialog;
         try {
             List<List<Weather>> data;
             //sinh đối tượng URL
-            URL url=createURL();
+            //lấy key
+            SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
+            String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
+            StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
+            //vì lá lấy dữ liệu 5 ngày, nên ta thêm forecast vào URL
+            stringBuilder.append("forecast").append("?");
+            //gán tên thành phố
+            final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
+            //nối tên thành phố
+            stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
+            //ngôn ngữ
+            stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
+            //chế độ jsson
+            stringBuilder.append("&mode=json");
+            //nối api
+            stringBuilder.append("&appid=").append(apiKey);
+            URL url= new URL(stringBuilder.toString());
             String response="";
             //mở kết nối
             HttpURLConnection connection= (HttpURLConnection) url.openConnection();
@@ -233,25 +249,5 @@ ProgressDialog progressDialog;
             }
         }//trường hợp k có . trả về null
         return null;
-    }
-    //sinh đối tượng URL
-    private URL createURL() throws Exception{
-        //lấy key
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
-        StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
-        //vì lá lấy dữ liệu 5 ngày, nên ta thêm forecast vào URL
-        stringBuilder.append("forecast").append("?");
-        //gán tên thành phố
-        final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
-        //nối tên thành phố
-        stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
-        //ngôn ngữ
-        stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
-        //chế độ jsson
-        stringBuilder.append("&mode=json");
-        //nối api
-        stringBuilder.append("&appid=").append(apiKey);
-        return new URL(stringBuilder.toString());
     }
 }

@@ -32,7 +32,20 @@ public class GetCityByCoor extends AsyncTask<String,String,String> {
         String weather ="";
         try {
             //tạo 1 đối tượng URL kết nối tới server
-                URL url=createURL(strings[0],strings[1]);
+            //lấy ra api lưu trong SharedPreferences
+                    SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
+                    String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
+                    //nối chuỗi tạo ra url api
+                    StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
+                    stringBuilder.append("weather").append("?");
+                    //lấy ra api lưu trong SharedPreferences
+                    stringBuilder.append("lat=").append(strings[0]).append("&lon=").append(strings[1]);
+                    //lấy ra api lưu trong SharedPreferences
+                    stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
+                    stringBuilder.append("&mode=json");
+                    //lấy ra api lưu trong SharedPreferences
+                    stringBuilder.append("&appid=").append(apiKey);
+                URL url=new URL(stringBuilder.toString());
                 String response="";
                 //mở kết nối
             HttpURLConnection connection= (HttpURLConnection) url.openConnection();
@@ -119,22 +132,5 @@ public class GetCityByCoor extends AsyncTask<String,String,String> {
 
         }
         return null;
-    }
-    //Sỉnh ra chuỗi URL để call api
-    private URL createURL(String lat,String lon) throws Exception{
-        //lấy ra api lưu trong SharedPreferences
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
-        //nối chuỗi tạo ra url api
-        StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
-        stringBuilder.append("weather").append("?");
-        //lấy ra api lưu trong SharedPreferences
-        stringBuilder.append("lat=").append(lat).append("&lon=").append(lon);
-        //lấy ra api lưu trong SharedPreferences
-        stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
-        stringBuilder.append("&mode=json");
-        //lấy ra api lưu trong SharedPreferences
-        stringBuilder.append("&appid=").append(apiKey);
-        return new URL(stringBuilder.toString());
     }
 }

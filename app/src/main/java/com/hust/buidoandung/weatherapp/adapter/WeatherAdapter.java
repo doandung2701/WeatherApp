@@ -76,11 +76,11 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherH
                 weatherItem.getDescription().substring(1) + rainString);
         //set giá trị gió. trong đó có thiết lập.Hướng gió hiển thị chữ hay Hình.
         viewHolder.itemyWind.setText(context.getString(R.string.wind) + ": " +  UnitConvertor.format((float) wind,windFormat) + " " +
-                    MainActivity.getvalueByPreferenceKey(sp, context, "speedUnit", "m/s")
+                ((MainActivity)context).localize(sp, "speedUnit", "m/s")
                 + " " + getWindDirectionString(sp, context, weatherItem,viewHolder.winddirection));
         //thiết lập giá trị áp suất
         viewHolder.itemPressure.setText(context.getString(R.string.pressure) + ": " + UnitConvertor.format((float)pressure,windFormat)  + " " +
-                MainActivity.getvalueByPreferenceKey(sp, context, "pressureUnit", "hPa"));
+                ((MainActivity)context).localize(sp, "pressureUnit", "hPa"));
         viewHolder.itemHumidity.setText(context.getString(R.string.humidity) + ": " + weatherItem.getHumidity() + " %");
         //format thời gian của 1 đơn vị thời tiét
         SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm");

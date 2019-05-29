@@ -42,7 +42,21 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
         try {
             Weather weather;
             //tạo URL
-            URL url=createURL();
+            //lấy api
+            SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
+            String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
+            StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
+            //lấy thòi tiết hôm nay nên sử dụng weather
+            stringBuilder.append("weather").append("?");
+            //nối tên thành phố
+            final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
+            stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
+            //ngôn ngữ
+            stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
+            stringBuilder.append("&mode=json");
+            //api
+            stringBuilder.append("&appid=").append(apiKey);
+            URL url= new URL(stringBuilder.toString());
             String response="";
             //mở kết nối
             HttpURLConnection connection= (HttpURLConnection) url.openConnection();
@@ -112,7 +126,7 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
                     //update địa chỉ
                     mainActivity.saveLocation(weather.getCity()+", "+weather.getCountry());
                     //update view todayWeather
-                    mainActivity.updateTodayWeatherUI(weather);
+                    mainActivity.updateToday(weather);
                 }
             });
         }
@@ -196,12 +210,12 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             String rain;
             if (rainObj != null) {
                 //trời mưa
-                rain = MainActivity.getRainOrSnowString(rainObj);
+                rain = UnitConvertor.getRainOrSnowString(rainObj);
             } else {
                 //trời có tuyết
                 JSONObject snowObj = reader.optJSONObject("snow");
                 if (snowObj != null) {
-                    rain = MainActivity.getRainOrSnowString(snowObj);
+                    rain = UnitConvertor.getRainOrSnowString(snowObj);
                 } else {
                     rain = "0";
                 }
@@ -213,29 +227,6 @@ public class GetTodayWeatherTask extends AsyncTask<String,String, Weather> {
             Log.d("Exception",e.getMessage());
             return null;
         }
-    }
-
-    /***
-     *
-     * @return URL
-     * @throws Exception
-     */
-    private URL createURL() throws Exception{
-        //lấy api
-        SharedPreferences sp= PreferenceManager.getDefaultSharedPreferences(mainActivity);
-        String apiKey=sp.getString("apiKey","fce95bdbd820ccf29a68b9574b50fe50");
-        StringBuilder stringBuilder=new StringBuilder("http://api.openweathermap.org/data/2.5/");
-        //lấy thòi tiết hôm nay nên sử dụng weather
-        stringBuilder.append("weather").append("?");
-        //nối tên thành phố
-        final String city = sp.getString("city", DefaultValue.DEFAULT_CITY);
-        stringBuilder.append("q=").append(URLEncoder.encode(city, "UTF-8"));
-        //ngôn ngữ
-        stringBuilder.append("&lang=").append(Locale.getDefault().getLanguage());
-        stringBuilder.append("&mode=json");
-        //api
-        stringBuilder.append("&appid=").append(apiKey);
-        return new URL(stringBuilder.toString());
     }
 
 }

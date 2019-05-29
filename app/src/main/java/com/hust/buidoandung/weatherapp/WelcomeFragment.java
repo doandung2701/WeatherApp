@@ -69,6 +69,7 @@ public class WelcomeFragment extends Fragment {
         }
         return v;
     }
+
     //craete new WelcomeFragment
     public static WelcomeFragment newInstance(int step) {
         Bundle bundle = new Bundle();

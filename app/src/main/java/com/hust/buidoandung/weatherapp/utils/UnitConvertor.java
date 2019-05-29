@@ -7,6 +7,8 @@ import android.content.res.Resources;
 import com.hust.buidoandung.weatherapp.MyApplication;
 import com.hust.buidoandung.weatherapp.R;
 
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
 import java.util.Locale;
 //su dung de chuyen doi don vi
@@ -142,5 +144,29 @@ public class UnitConvertor {
             return "N-N-W";
         }
     }
+    /*
+         Giá trị rain vs snow format kiểu.  Lượng mưa,Lượng tuyết  1h trước, tính theo mm
+         "rain":{"3h":0}
+         "rain":{"3h":3},
+         "snow":{"3h":0}
+         "snow":{"3h":3},
+         rain.1h Rain volume for the last 1 hour, mm
+         rain.3h Rain volume for the last 3 hours, mm
 
+         snow.1h Snow volume for the last 1 hour, mm
+         snow.3h Snow volume for the last 3 hours, mm
+          */
+    public static String getRainOrSnowString(JSONObject rainObj) {
+        String rain = "0";
+        if (rainObj != null) {
+            //lượng mưa,hoặc tuyết 3h trc.
+            rain = rainObj.optString("3h", "fail");
+            //nếu k có. lấy lượng mưa,hoặc tuyết 1h trước.
+            if ("fail".equals(rain)) {
+                rain = rainObj.optString("1h", "0");
+            }
+        }
+        //nếu k có dữ liệu .trả về 0
+        return rain;
+    }
 }

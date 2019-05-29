@@ -13,6 +13,25 @@ import java.util.Date;
 import java.util.Locale;
 
 public class Weather implements Parcelable {
+    protected Weather(Parcel in) {
+        city = in.readString();
+        country = in.readString();
+        temperature = in.readString();
+        description = in.readString();
+        wind = in.readString();
+        pressure = in.readString();
+        humidity = in.readString();
+        rain = in.readString();
+        id = in.readString();
+        icon = in.readString();
+        lat = in.readFloat();
+        log = in.readFloat();
+        if (in.readByte() == 0) {
+            windDirectionDegree = null;
+        } else {
+            windDirectionDegree = in.readDouble();
+        }
+    }
     private String city;
     //tên đất nc
     private String country;
@@ -47,25 +66,7 @@ public class Weather implements Parcelable {
     public Weather() {
     }
 
-    protected Weather(Parcel in) {
-        city = in.readString();
-        country = in.readString();
-        temperature = in.readString();
-        description = in.readString();
-        wind = in.readString();
-        pressure = in.readString();
-        humidity = in.readString();
-        rain = in.readString();
-        id = in.readString();
-        icon = in.readString();
-        lat = in.readFloat();
-        log = in.readFloat();
-        if (in.readByte() == 0) {
-            windDirectionDegree = null;
-        } else {
-            windDirectionDegree = in.readDouble();
-        }
-    }
+
 
     public static final Creator<Weather> CREATOR = new Creator<Weather>() {
         @Override

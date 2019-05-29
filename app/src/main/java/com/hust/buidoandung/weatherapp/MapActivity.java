@@ -28,7 +28,6 @@ import java.net.URL;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
     private GoogleMap mMap;
-    private static String OWM_TILE_URL = "http://tile.openweathermap.org/map/%s/%d/%d/%d.png?appid=fce95bdbd820ccf29a68b9574b50fe50";
     private String tileType = "rain";
     private TileOverlay tileOver;
     SharedPreferences preferences;
@@ -106,25 +105,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private void setUpMap() {
         tileOver = mMap.addTileOverlay(new TileOverlayOptions(). tileProvider(createTransparentTileProvider()));
 
-    }
-    private TileProvider createTilePovider() {
-        TileProvider tileProvider = new UrlTileProvider(256, 256) {
-            @Override
-            public URL getTileUrl(int x, int y, int zoom) {
-                String fUrl = String.format(OWM_TILE_URL, tileType == null ? "rain" : tileType, zoom, x, y);
-                URL url = null;
-                try {
-                    url = new URL(fUrl);
-                }
-                catch(MalformedURLException mfe) {
-                    mfe.printStackTrace();
-                }
-
-                return url;
-            }
-        } ;
-
-        return tileProvider;
     }
     private TileProvider createTransparentTileProvider() {
         return new TransparentTileOWM(tileType);

@@ -40,18 +40,19 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:paddingLeft="10dp"
-                    android:layout_height="wrap_content" android:orientation="vertical"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
                     >
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/todayTemp"
+                        android:id="@+id/temp"
                         android:text="0 °C"
                         android:textSize="36dp"
                         android:textColor="@color/whiteTextColor"
                         />
                     <TextView
-                        android:id="@+id/todayDes"
+                        android:id="@+id/des"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="No data"
@@ -61,7 +62,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
                         <TextView
-                            android:id="@+id/todayWind"
+                            android:id="@+id/wind"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
@@ -79,7 +80,7 @@
                             android:src="@drawable/up_arrow"/>
                     </LinearLayout>
                     <TextView
-                        android:id="@+id/todayPress"
+                        android:id="@+id/press"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Pressure: 0 hpa"
@@ -87,7 +88,7 @@
                         android:textSize="16dp" />
 
                     <TextView
-                        android:id="@+id/todayHumi"
+                        android:id="@+id/humidity"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Humidity: 0 %"
@@ -95,7 +96,7 @@
                         android:textSize="16dp" />
 
                     <TextView
-                        android:id="@+id/todaySunr"
+                        android:id="@+id/sunr"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Sunrise: 00:00"
@@ -103,7 +104,7 @@
                         android:textSize="16dp" />
 
                     <TextView
-                        android:id="@+id/todaySuns"
+                        android:id="@+id/suns"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Sunset: 00:00"
@@ -118,7 +119,7 @@
                     android:orientation="vertical"
                     >
                     <TextView
-                        android:id="@+id/todayIcon"
+                        android:id="@+id/tdIcon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
@@ -129,7 +130,7 @@
                         />
 
                     <TextView
-                        android:id="@+id/lastUpdate"
+                        android:id="@+id/lastud"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="bottom|end"

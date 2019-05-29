@@ -1,5 +1,4 @@
 package com.hust.buidoandung.weatherapp;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -11,19 +10,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -31,7 +24,6 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.graphics.Palette;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -40,9 +32,6 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
 import com.hust.buidoandung.weatherapp.adapter.ViewPagerAdapter;
 import com.hust.buidoandung.weatherapp.adapter.WeatherAdapter;
 import com.hust.buidoandung.weatherapp.adapter.WeatherFragment;
@@ -53,13 +42,10 @@ import com.hust.buidoandung.weatherapp.tasks.GetLongTermWeatherTask;
 import com.hust.buidoandung.weatherapp.tasks.GetTodayWeatherTask;
 import com.hust.buidoandung.weatherapp.utils.DefaultValue;
 import com.hust.buidoandung.weatherapp.utils.UnitConvertor;
-
 import org.json.JSONObject;
-
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -118,15 +104,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         setContentView(R.layout.activity_main);
         //setStatusBarTrans(true);
         //tìm các đối tượng trên vieww
-        todayTemperature =  findViewById(R.id.todayTemp);
-        todayDescription =  findViewById(R.id.todayDes);
-        todayWind =  findViewById(R.id.todayWind);
-        todayPressure =  findViewById(R.id.todayPress);
-        todayHumidity =  findViewById(R.id.todayHumi);
-        todaySunrise =  findViewById(R.id.todaySunr);
-        todaySunset =  findViewById(R.id.todaySuns);
-        lastUpdate =  findViewById(R.id.lastUpdate);
-        todayIcon =  findViewById(R.id.todayIcon);
+        todayTemperature =  findViewById(R.id.temp);
+        todayDescription =  findViewById(R.id.des);
+        todayWind =  findViewById(R.id.wind);
+        todayPressure =  findViewById(R.id.press);
+        todayHumidity =  findViewById(R.id.humidity);
+        todaySunrise =  findViewById(R.id.sunr);
+        todaySunset =  findViewById(R.id.suns);
+        lastUpdate =  findViewById(R.id.lastud);
+        todayIcon =  findViewById(R.id.tdIcon);
         viewPager=findViewById(R.id.viewPager);
         tabLayout=findViewById(R.id.tabs);
         winddirection=findViewById(R.id.winddirection);
@@ -143,7 +129,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         pressUnits.put("kPa", R.string.pressure_unit_kpa);
         pressUnits.put("mm Hg", R.string.pressure_unit_mmhg);
         //load thời tiết
-        preloadWeather();
+        new GetTodayWeatherTask(progressDialog,  this).execute();
+        new GetLongTermWeatherTask(progressDialog,this).execute();
         //check quyền để lấy quyền từ user
         if(!arePermissionsEnabled()){
             requestMultiplePermissions();
@@ -153,7 +140,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         //khởi tạo broadcast
         broadcastReceiver=new ConnectivityReceiver();
     }
-
+   public void preloadWeather(){
+       new GetTodayWeatherTask(progressDialog,  this).execute();
+       new GetLongTermWeatherTask(progressDialog,this).execute();
+    }
         //thiết lập trong suốt statusbar
     public void setStatusBarTrans(boolean makeTrans) {
         if (makeTrans) {
@@ -163,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         }
     }
     //update data in viewPage
-    public void updateLongTermWeatherUI(List<List<Weather>> data) {
+    public void updateViewPager(List<List<Weather>> data) {
         //kiểm tra xem có lây dược dữ liệu k
         if(data!=null){
             //lấy ra các dữ liệu cơ bản
@@ -175,23 +165,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 //tạo Adapter
                 ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-                Bundle bundleToday = new Bundle();
-                bundleToday.putInt("day", 0);
+                Bundle bundler = new Bundle();
+
+
+                bundler.putInt("day", 0);
                 WeatherFragment recyclerViewFragmentToday = new WeatherFragment();
-                recyclerViewFragmentToday.setArguments(bundleToday);
+                recyclerViewFragmentToday.setArguments(bundler);
                 viewPagerAdapter.addFragment(recyclerViewFragmentToday, "Today");
 
                 //fragment tomorrow
-                Bundle bundleTomorrow = new Bundle();
-                bundleTomorrow.putInt("day", 1);
+                 bundler = new Bundle();
+                bundler.putInt("day", 1);
                 WeatherFragment recyclerViewFragmentTomorrow = new WeatherFragment();
-                recyclerViewFragmentTomorrow.setArguments(bundleTomorrow);
+                recyclerViewFragmentTomorrow.setArguments(bundler);
                 viewPagerAdapter.addFragment(recyclerViewFragmentTomorrow, "Tomorrow");
                 //fragment Later
-                Bundle bundleLater  = new Bundle();
-                bundleLater.putInt("day", 2);
+                bundler  = new Bundle();
+                bundler.putInt("day", 2);
                 WeatherFragment recyclerViewFragment = new WeatherFragment();
-                recyclerViewFragment.setArguments(bundleLater);
+                recyclerViewFragment.setArguments(bundler);
                 viewPagerAdapter.addFragment(recyclerViewFragment,"Later");
                 viewPagerAdapter.notifyDataSetChanged();
                 //update data
@@ -200,12 +192,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 tabLayout.setupWithViewPager(viewPager);
                 //thiết lập trang hiện hành
                 int currentPage = viewPager.getCurrentItem();
-                viewPager.setCurrentItem(currentPage, false);
+                viewPager.setCurrentItem(currentPage, true);
             }
 
         }
 
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+
+    }
+
     //tạo setting option
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         if(locationManager!=null){
             locationManager.removeUpdates(MainActivity.this);
         }
+
     }
 
     @Override
@@ -247,8 +248,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 //updatelại dữ liệu
             case R.id.action_refresh:
                 if(checkConnection()){
-                    getTodayWeather();
-                    getLongTermWeather();
+                    new GetTodayWeatherTask(progressDialog,  this).execute();
+                    new GetLongTermWeatherTask(progressDialog,this).execute();
                 }else{
                     Snackbar.make(findViewById(android.R.id.content), "No internet connection! Please turn on your internet", Snackbar.LENGTH_LONG).show();
                 }
@@ -275,15 +276,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     }
     //cap nhat lai view khi setting thay doi
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode,Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         //update lại dữ liệu theo các setting mới
-        updateTodayWeatherUI(todayWeather);
+        updateToday(todayWeather);
         List<List<Weather>> dataWeather=new ArrayList<List<Weather>>();
         dataWeather.add(longTermTodayWeather);
         dataWeather.add(longTermTomorrowWeather);
         dataWeather.add(longTermWeather);
-        updateLongTermWeatherUI(dataWeather);
+        updateViewPager(dataWeather);
 
     }
     //Su dung LocationService de lay du lieu dia chi
@@ -293,11 +294,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             //trương hợp phiên bản cao ơn M. viết theo kiểu mới
             if(arePermissionsEnabled()){
                 //lấy dịch vụ LOCATION_SERVICE ra
+                if(locationManager==null)
                 locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
                 progressDialog = new ProgressDialog(this);
                 //cho hiển thị progess
-                progressDialog.setMessage("Gettting your location...");
-                progressDialog.setCancelable(false);
+                progressDialog.setMessage("Geting data...");
+                progressDialog.setCancelable(true);
+                progressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        try {
+                            locationManager.removeUpdates(MainActivity.this);
+                        }catch (SecurityException e){
+                            e.printStackTrace();
+                        }
+                        progressDialog.dismiss();
+                        Snackbar.make(findViewById(android.R.id.content), "You have been cancel update.Please try again", Snackbar.LENGTH_LONG).show();
+                    }
+                });
                 //set hành động Cancel.Hủy update
                 progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -307,6 +321,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                         } catch (SecurityException e) {
                             e.printStackTrace();
                         }
+                 progressDialog.dismiss();
                     }
                 });
                 progressDialog.show();
@@ -318,8 +333,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                     locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
                 }
                 //hoặc từ GPS
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                else if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                }
+                else{
+                    progressDialog.dismiss();
+                    Snackbar.make(findViewById(android.R.id.content), "No internet connection or GPS! Please turn on your internet or GPS", Snackbar.LENGTH_LONG).show();
                 }
             }else{
                 //trường hpự k có đủ quyền. cần yêu cầu quyền từ ng dùng
@@ -352,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     //xử lý kéet quả cấp quyền
     @TargetApi(Build.VERSION_CODES.M)
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(requestCode == 101){
             for(int i=0;i<grantResults.length;i++){
                 //kiểm tra từng quyền. nếu chưa được cấp. yêu cầu cấp ngay
@@ -382,10 +401,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
             getWeatherByUsingLocationService();
             //all is good, continue flow
         }
-    }
-    //return AsyncTask todayWeather
-    private void getTodayWeather() {
-        new GetTodayWeatherTask(progressDialog,this).execute();
     }
 
     @Override
@@ -455,8 +470,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         editor.commit();
         //kiểm tra.nếu là thành phố mới. láy dữ liệu
         if (!recentCity.equals(result)) {
-            getTodayWeather();
-            getLongTermWeather();
+            new GetTodayWeatherTask(progressDialog,this).execute();
+            new GetLongTermWeatherTask(progressDialog,this).execute();
         }
     }
 
@@ -480,22 +495,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
         //udpate thời gian cập nhật
     public void updateLastUpdateTime() {
-        updateLastUpdateTime(
-                PreferenceManager.getDefaultSharedPreferences(this).getLong("lastUpdate", -1)
-        );
-    }
-    //return AsyncTask GetLongTermWeather
-    public void getLongTermWeather() {
-        new GetLongTermWeatherTask(progressDialog, this).execute();
-    }
-    //cập nhật thời gian
-    private void updateLastUpdateTime(long timeInMillis) {
-        if (timeInMillis < 0) {
+      long lastUpdateTime=
+                PreferenceManager.getDefaultSharedPreferences(this).getLong("lastUpdate", -1);
+        if (lastUpdateTime < 0) {
             //nếu nhỏ hơn  0. thì set text về rỗng
             lastUpdate.setText("");
         } else {
             //convert thời gian về định dạng chuẩn. rồi hiển thị
-            Date lastCheckedDate = new Date(timeInMillis);
+            Date lastCheckedDate = new Date(lastUpdateTime);
             //format ngày tháng năm theo chuẩn
             String timeFormat = getTimeFormat(this).format(lastCheckedDate);
             String dateTime=getDateFormat(this).format(lastCheckedDate) + " " + timeFormat;
@@ -504,10 +511,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         }
     }
     //cập nhật giao diện todayWeather
-    public void updateTodayWeatherUI(Weather weather) {
+    public void updateToday(Weather weather) {
         //nếu có dữ liệu
        if(weather!=null){
-
            todayWeather=weather;
            //iupdate thời gian cập nhật
            updateLastUpdateTime();
@@ -570,14 +576,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
        }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        //hủy đăng kí lấng nghe sự kiện internet change
-        unregisterReceiver(broadcastReceiver);
-
-    }
-
     public  String getWindDirectionString(SharedPreferences sp, Context context, Weather weather) {
         try {
             if (Double.parseDouble(weather.getWind()) != 0) {
@@ -615,68 +613,20 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
      * @param defaultValueKey
      * @return Lấy ra phần cài đặt về các kiểu đơn vị
      */
-    private String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
-        return getvalueByPreferenceKey(sp, this, preferenceKey, defaultValueKey);
-    }
-
-    /***
-     *
-     * @param sp
-     * @param context
-     * @param preferenceKey
-     * @param defaultValueKey
-     * @return Đơn vị được cài đặt từ Người dùng
-     */
-    public static String getvalueByPreferenceKey(SharedPreferences sp, Context context, String preferenceKey, String defaultValueKey) {
-       //lấy value theo key
+    public String localize(SharedPreferences sp, String preferenceKey, String defaultValueKey) {
+        //lấy value theo key
         String preferenceValue = sp.getString(preferenceKey, defaultValueKey);
         String result = preferenceValue;
         //cài đặt đơn vị tốc độ
         if ("speedUnit".equals(preferenceKey)) {
-            if (speedUnits.containsKey(preferenceValue)) {
-                result = context.getString(speedUnits.get(preferenceValue));
-            }
-          //cài đặt đơn vị về áp suất
+                result = this.getString(speedUnits.get(preferenceValue));
+
+            //cài đặt đơn vị về áp suất
         } else if ("pressureUnit".equals(preferenceKey)) {
-            if (pressUnits.containsKey(preferenceValue)) {
-                result = context.getString(pressUnits.get(preferenceValue));
-            }
+                result = this.getString(pressUnits.get(preferenceValue));
         }
         return result;
     }
-    //tải lại tất cả dữ liệu
-    public void preloadWeather() {
-            new GetTodayWeatherTask(progressDialog,  this).execute();
-            new GetLongTermWeatherTask(progressDialog,this).execute();
-    }
-
-
-        /*
-        Giá trị rain vs snow format kiểu.  Lượng mưa,Lượng tuyết  1h trước, tính theo mm
-        "rain":{"3h":0}
-        "rain":{"3h":3},
-        "snow":{"3h":0}
-        "snow":{"3h":3},
-        rain.1h Rain volume for the last 1 hour, mm
-        rain.3h Rain volume for the last 3 hours, mm
-
-        snow.1h Snow volume for the last 1 hour, mm
-        snow.3h Snow volume for the last 3 hours, mm
-         */
-    public static String getRainOrSnowString(JSONObject rainObj) {
-        String rain = "0";
-        if (rainObj != null) {
-            //lượng mưa,hoặc tuyết 3h trc.
-            rain = rainObj.optString("3h", "fail");
-            //nếu k có. lấy lượng mưa,hoặc tuyết 1h trước.
-            if ("fail".equals(rain)) {
-                rain = rainObj.optString("1h", "0");
-            }
-        }
-        //nếu k có dữ liệu .trả về 0
-        return rain;
-    }
-
     /***
      * Lắng nghe sự kiện thay đổi location bởi GPS hoặc internet
      * @param location
@@ -684,7 +634,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     public void onLocationChanged(Location location) {
         //tắt bỏ progress
-        progressDialog.dismiss();
+        if(progressDialog.isShowing())
+            progressDialog.dismiss();
         try {
             //hủy bỏ việc đăng kí lắng nghe update trên activity này
             locationManager.removeUpdates(this);
@@ -695,8 +646,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         //lấy ra đối tượng SharedPreferences
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         //lưu thông tin vào SharePreferences
         editor.putFloat("lat", (float) latitude);
         editor.putFloat("long", (float) longitude);
